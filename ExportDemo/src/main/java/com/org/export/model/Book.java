@@ -1,10 +1,17 @@
 package com.org.export.model;
 
-public class Book 
+import com.org.export.annotation.ExportInfo;
+import com.org.export.interfaces.IExport;
+
+public class Book implements IExport
 {
+	@ExportInfo(headerText="Title",width=100)
 	private String title;
+	@ExportInfo(headerText="Author",width=100,order=1)
 	private String author;
+	@ExportInfo(headerText="IsBN",width=100,order=2)
 	private String isbn;
+	@ExportInfo(headerText="Published Date",width=100,order=2)
 	private String publishedDate;
 	private float price;
 
