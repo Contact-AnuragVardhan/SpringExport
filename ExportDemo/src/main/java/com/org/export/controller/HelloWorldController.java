@@ -1,4 +1,4 @@
-package com.org.export;
+package com.org.export.controller;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -7,7 +7,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 
 @Controller
-public class ExportController 
+public class HelloWorldController 
 {
 	String message = "Welcome to Spring MVC!";
 	@RequestMapping("/hello")
