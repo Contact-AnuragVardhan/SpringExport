@@ -70,10 +70,10 @@ public abstract class AbstractExcelView extends AbstractView
 		{
 			sheetRow = sheet.createRow(row);
 		}
-		HSSFCell cell = sheetRow.getCell((short) col);
+		HSSFCell cell = sheetRow.getCell(col);
 		if (cell == null) 
 		{
-			cell = sheetRow.createCell((short) col);
+			cell = sheetRow.createCell(col);
 		}
 		return cell;
 	}
