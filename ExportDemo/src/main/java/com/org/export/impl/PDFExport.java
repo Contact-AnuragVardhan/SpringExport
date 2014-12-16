@@ -18,7 +18,7 @@ import com.itextpdf.text.pdf.PdfWriter;
 import com.org.export.base.AbstractPdfView;
 import com.org.export.model.Book;
 
-
+@SuppressWarnings("unchecked")
 public class PDFExport extends AbstractPdfView
 {
 

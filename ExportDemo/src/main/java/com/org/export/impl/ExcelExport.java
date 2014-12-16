@@ -7,9 +7,13 @@ import java.util.List;
 import java.util.Map;
  
 
+
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
  
+
+
 
 import org.apache.poi.hssf.usermodel.HSSFFont;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -19,10 +23,11 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 
+@SuppressWarnings("unchecked")
 public class ExcelExport extends AbstractExcelView
 {
 	@Override
-	protected void buildExcelDocument(Map model, HSSFWorkbook workbook, HttpServletRequest request, HttpServletResponse response) throws Exception 
+	protected void buildExcelDocument(Map<String, Object> model, HSSFWorkbook workbook, HttpServletRequest request, HttpServletResponse response) throws Exception 
 	{
 		// get data model which is passed by the Spring container
         List<Book> listBooks = (List<Book>) model.get("listBooks");
