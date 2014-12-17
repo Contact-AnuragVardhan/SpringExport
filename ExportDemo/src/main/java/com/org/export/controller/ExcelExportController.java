@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.org.export.interfaces.IExport;
 import com.org.export.model.Book;
+import com.org.export.model.ExportDTO;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,8 +25,8 @@ public class ExcelExportController
     public ModelAndView downloadExcel() 
 	{
         // create some sample data
-        List<Book> listBooks = new ArrayList<Book>();
-        listBooks.add(new Book("Effective Java", "Joshua Bloch", "0321356683",
+        List<IExport> listBooks = new ArrayList<IExport>();
+        listBooks.add(new Book("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
                 "May 28, 2008", 38.11F));
         listBooks.add(new Book("Head First Java", "Kathy Sierra & Bert Bates",
                 "0596009208", "February 9, 2005", 30.80F));
@@ -34,8 +36,15 @@ public class ExcelExportController
                 "February 20, 2006", 43.97F));
         listBooks.add(new Book("Spring in Action", "Craig Walls", "1935182358",
                 "June 29, 2011", 31.98F));
- 
+        
+        ExportDTO export = new ExportDTO();
+		export.setFileName("Book Record");
+        export.setExcelSheetName("Book Record");
+        export.setLstExports(listBooks);
+        export.setHeaderText("Recommended books for Spring Framework");
+
+        
         // return a view which will be resolved by an excel view resolver
-        return new ModelAndView("excelView", "listBooks", listBooks);
+        return new ModelAndView("excelView", "exportInfo", export);
     }
 }
