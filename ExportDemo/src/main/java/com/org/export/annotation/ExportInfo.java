@@ -10,6 +10,11 @@ import java.lang.annotation.Target;
 public @interface ExportInfo 
 {
 	String headerText();
+	/*
+	 * This is not working as of now
+	 */
 	int order() default -1;
-	double width() default 0.0;
+	float width() default -1.0f;
+	float relativeWidth() default -1.0f;
+	boolean wordWrap() default false;
 }

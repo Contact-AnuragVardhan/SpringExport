@@ -5,13 +5,13 @@ import com.org.export.interfaces.IExport;
 
 public class Book implements IExport
 {
-	@ExportInfo(headerText="Title",width=100)
+	@ExportInfo(headerText="Title",order=1,width=30,wordWrap=true)
 	private String title;
-	@ExportInfo(headerText="Author",width=100,order=1)
+	@ExportInfo(headerText="Author",order=2,width=30)
 	private String author;
-	@ExportInfo(headerText="IsBN",width=100,order=2)
+	@ExportInfo(headerText="IsBN",order=3,width=30)
 	private String isbn;
-	@ExportInfo(headerText="Published Date",width=100,order=2)
+	@ExportInfo(headerText="Published Date",order=4)
 	private String publishedDate;
 	private float price;
 

@@ -14,8 +14,8 @@ import org.springframework.web.servlet.view.AbstractView;
 
 public abstract class AbstractExcelView extends AbstractView 
 {
-	private static final String CONTENT_TYPE = "application/vnd.ms-excel";
-	private static final String DEFAULT_FILE_NAME = "excel";
+	protected static final String CONTENT_TYPE = "application/vnd.ms-excel";
+	protected static final String DEFAULT_FILE_NAME = "excel";
 	
 	private String fileName;
 	public void setFileName(String fileName) 
