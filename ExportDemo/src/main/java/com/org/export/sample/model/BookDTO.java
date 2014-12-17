@@ -1,9 +1,9 @@
-package com.org.export.model;
+package com.org.export.sample.model;
 
 import com.org.export.annotation.ExportInfo;
 import com.org.export.interfaces.IExport;
 
-public class Book implements IExport
+public class BookDTO implements IExport
 {
 	@ExportInfo(headerText="Title",order=1,width=30,wordWrap=true)
 	private String title;
@@ -15,7 +15,7 @@ public class Book implements IExport
 	private String publishedDate;
 	private float price;
 
-	public Book(String title, String author, String isbn, String publishedDate, float price) 
+	public BookDTO(String title, String author, String isbn, String publishedDate, float price) 
 	{
 		this.title = title;
 		this.author = author;
@@ -63,6 +63,4 @@ public class Book implements IExport
 	public void setPrice(float price) {
 		this.price = price;
 	}
-
-
 }

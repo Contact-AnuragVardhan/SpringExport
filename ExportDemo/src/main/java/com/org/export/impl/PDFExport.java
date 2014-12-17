@@ -8,6 +8,9 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.poi.util.ArrayUtil;
+
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
@@ -29,6 +32,7 @@ public class PDFExport extends AbstractPdfView
 	protected final int CELL_PADDING = 5;
 	protected final float DEFAULT_RELATIVE_WIDTH = 3.0f;
 	protected List<Field> lstAnnotatedFields = null;
+	
 	@Override
 	protected void buildPdfDocument(Map<String, Object> model,Document document, PdfWriter writer, HttpServletRequest request,HttpServletResponse response) throws Exception 
 	{
@@ -45,7 +49,7 @@ public class PDFExport extends AbstractPdfView
 				spaceBeforeTable = SPACE_BEFORE_TABLE;
 			}
 			getAnnotatedField(lstExports);
-			PdfPTable table = new PdfPTable(lstExports.size());
+			PdfPTable table = new PdfPTable(lstAnnotatedFields.size());
 			table.setWidthPercentage(100.0f);
 			table.setSpacingBefore(spaceBeforeTable);
 			createHeader(table);
@@ -79,6 +83,7 @@ public class PDFExport extends AbstractPdfView
 	protected void createHeader(PdfPTable table) throws DocumentException 
 	{
 		float[] arrColWidth = new float[lstAnnotatedFields.size()];
+		//List<Float> lstColWidth = new ArrayList<Float>();
 		Font font = FontFactory.getFont(FontFactory.HELVETICA);
 		font.setColor(BaseColor.WHITE);
 		
@@ -94,13 +99,16 @@ public class PDFExport extends AbstractPdfView
  			if(exportInfo.relativeWidth() > -1.0f)
  			{
  				arrColWidth[count] = exportInfo.relativeWidth();
+ 				//lstColWidth.add(exportInfo.relativeWidth());
  			}
  			else
  			{
  				arrColWidth[count] = DEFAULT_RELATIVE_WIDTH;
+ 				//lstColWidth.add(DEFAULT_RELATIVE_WIDTH);
  			}
  			table.addCell(cell);
      	}
+		//float[] arrColWidth = ArrayUtils.toPrimitive(lstColWidth.toArray(new Float[0]));
 		table.setWidths(arrColWidth);
 	}
 	

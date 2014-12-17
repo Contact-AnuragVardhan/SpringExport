@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.org.export.annotation.ExportInfo;
 import com.org.export.interfaces.IExport;
-import com.org.export.model.Book;
+import com.org.export.sample.model.BookDTO;
 
 public class CustomAnnotationTest 
 {
@@ -15,15 +15,15 @@ public class CustomAnnotationTest
 	{
 		// create some sample data
         List<IExport> lstExports = new ArrayList<IExport>();
-        lstExports.add(new Book("Effective Java", "Joshua Bloch", "0321356683",
+        lstExports.add(new BookDTO("Effective Java", "Joshua Bloch", "0321356683",
                 "May 28, 2008", 38.11F));
-        lstExports.add(new Book("Head First Java", "Kathy Sierra & Bert Bates",
+        lstExports.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
                 "0596009208", "February 9, 2005", 30.80F));
-        lstExports.add(new Book("Java Generics and Collections",
+        lstExports.add(new BookDTO("Java Generics and Collections",
                 "Philip Wadler", "0596527756", "Oct 24, 2006", 29.52F));
-        lstExports.add(new Book("Thinking in Java", "Bruce Eckel", "0596527756",
+        lstExports.add(new BookDTO("Thinking in Java", "Bruce Eckel", "0596527756",
                 "February 20, 2006", 43.97F));
-        lstExports.add(new Book("Spring in Action", "Craig Walls", "1935182358",
+        lstExports.add(new BookDTO("Spring in Action", "Craig Walls", "1935182358",
                 "June 29, 2011", 31.98F));
         
         if(lstExports!=null && lstExports.size() > 0)
