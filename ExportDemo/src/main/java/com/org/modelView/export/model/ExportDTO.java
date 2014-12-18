@@ -1,8 +1,8 @@
-package com.org.export.model;
+package com.org.modelView.export.model;
 
 import java.util.List;
 
-import com.org.export.interfaces.IExport;
+import com.org.modelView.export.interfaces.IExport;
 
 public class ExportDTO 
 {

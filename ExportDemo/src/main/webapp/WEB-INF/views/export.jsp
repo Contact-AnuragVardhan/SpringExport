@@ -16,5 +16,9 @@
         <h1>Spring MVC Excel View Demo (Apache POI)</h1>
         <h3><a href="downloadExcel">Download Excel Document</a></h3>
     </div>
+    <div align="center">
+        <h1>Servlet API</h1>
+        <h3><a href="ExportServlet">Download Excel Document</a></h3>
+    </div>
 </body>
 </html>

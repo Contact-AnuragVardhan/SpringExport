@@ -1,4 +1,4 @@
-package com.org.export.sample.controller;
+package com.org.modelView.export.sample.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.org.export.interfaces.IExport;
-import com.org.export.model.ExportDTO;
-import com.org.export.sample.model.BookDTO;
+import com.org.modelView.export.interfaces.IExport;
+import com.org.modelView.export.model.ExportDTO;
+import com.org.modelView.export.sample.model.BookDTO;
 
 @Controller
 public class SampleExportController 

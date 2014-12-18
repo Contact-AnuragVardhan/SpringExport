@@ -1,4 +1,4 @@
-package com.org.export.annotation;
+package com.org.modelView.export.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

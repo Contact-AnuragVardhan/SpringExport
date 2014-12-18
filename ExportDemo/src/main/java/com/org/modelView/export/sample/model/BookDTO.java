@@ -1,7 +1,7 @@
-package com.org.export.sample.model;
+package com.org.modelView.export.sample.model;
 
-import com.org.export.annotation.ExportInfo;
-import com.org.export.interfaces.IExport;
+import com.org.modelView.export.annotation.ExportInfo;
+import com.org.modelView.export.interfaces.IExport;
 
 public class BookDTO implements IExport
 {
