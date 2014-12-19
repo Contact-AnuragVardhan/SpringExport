@@ -100,7 +100,7 @@
     		pdfExportMetaData.setIsHeirarchicalData(isHeirarchicalData);
     		pdfExportMetaData.setParentColumn(parentElement);
     		pdfExportMetaData.setDataProvider(dataProvider);
-    	    //session.setAttribute("exportData", pdfExportMetaData);
+    	    session.setAttribute("exportData", pdfExportMetaData);
     	%>
     	<center><input type="BUTTON" onclick="exportPDF()">PDF Export</input> </center>  
     </form>
