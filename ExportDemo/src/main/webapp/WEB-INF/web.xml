@@ -27,10 +27,10 @@
     <description></description>
     <display-name>ExportServlet</display-name>
     <servlet-name>ExportServlet</servlet-name>
-    <servlet-class>com.org.export.sample.controller.ExportServlet</servlet-class>
+    <servlet-class>com.org.export.servlet.ExportServlet</servlet-class>
   </servlet>
   <servlet-mapping>
     <servlet-name>ExportServlet</servlet-name>
-    <url-pattern>/ExportServlet</url-pattern>
+    <url-pattern>/exportDoc</url-pattern>
   </servlet-mapping>
 </web-app>
