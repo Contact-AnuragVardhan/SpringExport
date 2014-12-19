@@ -28,8 +28,7 @@ public class ExcelExportImpl extends ExportBase
 	protected static short HEADER_TEXT_COLOR;
 	protected static short TABLE_HEADER_BACKGROUND_COLOR;
 	protected static short TABLE_HEADER_TEXT_COLOR;
-	protected static short TABLE_BODY_ODD_COLOR;
-	protected static short TABLE_BODY_EVEN_COLOR;
+	protected static short[] TABLE_BODY_COLOR;
 	protected static short TABLE_BODY_TEXT_COLOR;
 	
 	
@@ -48,8 +47,7 @@ public class ExcelExportImpl extends ExportBase
 		HEADER_TEXT_COLOR = IndexedColors.BLACK.getIndex();
 		TABLE_HEADER_BACKGROUND_COLOR = IndexedColors.GREY_80_PERCENT.getIndex();
 		TABLE_HEADER_TEXT_COLOR = IndexedColors.WHITE.getIndex();
-		TABLE_BODY_ODD_COLOR = IndexedColors.GREY_50_PERCENT.getIndex();
-		TABLE_BODY_EVEN_COLOR = IndexedColors.WHITE.getIndex();
+		TABLE_BODY_COLOR = new short[]{IndexedColors.WHITE.getIndex(),IndexedColors.GREY_25_PERCENT.getIndex()};
 		TABLE_BODY_TEXT_COLOR = IndexedColors.BLACK.getIndex();
 		
 		buildExcelDocument();
@@ -69,6 +67,7 @@ public class ExcelExportImpl extends ExportBase
 		String sheetFileName = ((this.getExportInfo().getSheetName() == null || this.getExportInfo().getSheetName().length() == 0) ? DEFAULT_SHEET_NAME : this.getExportInfo().getSheetName());
         // create a new Excel sheet
         Sheet sheet = workbook.createSheet(sheetFileName);
+        setPrinterConfiguration(sheet);
         if(this.getExportInfo().getHeaderText() != null && this.getExportInfo().getHeaderText().length() > 0)
 		{
         	Row titleRow = sheet.createRow(0);
@@ -76,7 +75,8 @@ public class ExcelExportImpl extends ExportBase
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellValue(this.getExportInfo().getHeaderText());
             titleCell.setCellStyle(styles.get("title"));
-            sheet.addMergedRegion(CellRangeAddress.valueOf("$A$1:$L$1"));
+            String cellRangeAddress = "$A$1:$L$1";
+            sheet.addMergedRegion(CellRangeAddress.valueOf(cellRangeAddress));
             headerRowIndex = 1;
 		}
         createTable(workbook,sheet,styles);
@@ -104,10 +104,10 @@ public class ExcelExportImpl extends ExportBase
  				Cell cell = headerRow.createCell(count);
  				cell.setCellValue(gridColumnInfo.getHeaderText());
  				cell.setCellStyle(style);
-// 				if(gridColumnInfo.isWordWrap())
-// 				{
-// 					setColumnWordWrap(workbook,sheet,count);
-// 				}
+ 				if(gridColumnInfo.isWordWrap())
+ 				{
+ 					setColumnWordWrap(workbook,sheet,count);
+ 				}
          	}
     	}
 	}
@@ -127,18 +127,21 @@ public class ExcelExportImpl extends ExportBase
              		Object colValue = ((objData.get(columnInfo.getDataField()) == null) ? "" : objData.get(columnInfo.getDataField()).toString());
          			int cellType = getCellDataType(colValue);
      				Cell cell = row.createCell(colCount,cellType);
-     				cell.setCellStyle(oddStyle);
      				setCellValue(cell,cellType,colValue);
-     				
-     				/*if(rowCount % 2 == 0)
+     				CellStyle style; 
+     				if(rowCount % 2 == 0)
     				{
-     					cell.setCellStyle(oddStyle);
+     					style = oddStyle;
     				}
     				else
     				{
-    					cell.setCellStyle(evenStyle);
-    				}*/
-     				
+    					style = evenStyle;
+    				}
+     				if(columnInfo.isWordWrap())
+     				{
+     					style.setWrapText(true);
+     				}
+     				cell.setCellStyle(style);
              	}
              }
 		}
@@ -167,11 +170,11 @@ public class ExcelExportImpl extends ExportBase
 	{
 		if(workbook!=null && sheet != null)
 		{
-			CellStyle style = sheet.getColumnStyle(columnCount);
-			if(style == null)
-			{
-				style = workbook.createCellStyle();
-			}
+			//CellStyle style = sheet.getColumnStyle(columnCount);
+			//if(style == null)
+			//{
+			CellStyle style = workbook.createCellStyle();
+			//}
 			style.setWrapText(true);
 		    sheet.setDefaultColumnStyle(columnCount, style);
 		}
@@ -254,17 +257,20 @@ public class ExcelExportImpl extends ExportBase
         oddRowStyle.setColor(TABLE_BODY_TEXT_COLOR);
         style = workbook.createCellStyle();
         style.setAlignment(CellStyle.ALIGN_CENTER);
-//        style.setBorderRight(CellStyle.BORDER_THIN);
-//        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
-//        style.setBorderLeft(CellStyle.BORDER_THIN);
-//        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
-//        style.setBorderTop(CellStyle.BORDER_THIN);
-//        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
-//        style.setBorderBottom(CellStyle.BORDER_THIN);
-//        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-        style.setFillForegroundColor(TABLE_BODY_ODD_COLOR);
+        style.setBorderRight(CellStyle.BORDER_THIN);
+        style.setRightBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderLeft(CellStyle.BORDER_THIN);
+        style.setLeftBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderTop(CellStyle.BORDER_THIN);
+        style.setTopBorderColor(IndexedColors.BLACK.getIndex());
+        style.setBorderBottom(CellStyle.BORDER_THIN);
+        style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
+        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        style.setFillForegroundColor(TABLE_BODY_COLOR[0]);
+        style.setFillPattern(CellStyle.SOLID_FOREGROUND);
         style.setFont(oddRowStyle);
         styles.put("oddRow", style);
+        
         
         Font evenRowStyle = workbook.createFont();
         evenRowStyle.setColor(TABLE_BODY_TEXT_COLOR);
@@ -278,7 +284,9 @@ public class ExcelExportImpl extends ExportBase
         style.setTopBorderColor(IndexedColors.BLACK.getIndex());
         style.setBorderBottom(CellStyle.BORDER_THIN);
         style.setBottomBorderColor(IndexedColors.BLACK.getIndex());
-        style.setFillForegroundColor(TABLE_BODY_EVEN_COLOR);
+        style.setVerticalAlignment(CellStyle.VERTICAL_CENTER);
+        style.setFillForegroundColor(TABLE_BODY_COLOR[1]);
+        style.setFillPattern(CellStyle.SOLID_FOREGROUND);
         style.setFont(evenRowStyle);
         styles.put("evenRow", style);
 
