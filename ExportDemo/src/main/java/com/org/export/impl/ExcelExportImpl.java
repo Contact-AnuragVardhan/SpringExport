@@ -1,5 +1,9 @@
 package com.org.export.impl;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -7,9 +11,11 @@ import java.util.Map;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.CreationHelper;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.IndexedColors;
 import org.apache.poi.ss.usermodel.PrintSetup;
+import org.apache.poi.ss.usermodel.RichTextString;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -20,6 +26,7 @@ import com.org.export.base.ExportBase;
 import com.org.export.enums.ExportType;
 import com.org.export.model.ExportDataDTO;
 import com.org.export.model.GridColumnInfo;
+import com.org.export.util.DataSourceUtil;
 
 public class ExcelExportImpl extends ExportBase
 {
@@ -75,7 +82,7 @@ public class ExcelExportImpl extends ExportBase
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellValue(this.getExportInfo().getHeaderText());
             titleCell.setCellStyle(styles.get("title"));
-            String cellRangeAddress = "$A$1:$L$1";
+            String cellRangeAddress = "$A$1:$" + DataSourceUtil.getAlphabetByIndex(this.getExportInfo().getColumns().size(),true)  + "$1";
             sheet.addMergedRegion(CellRangeAddress.valueOf(cellRangeAddress));
             headerRowIndex = 1;
 		}
@@ -104,10 +111,11 @@ public class ExcelExportImpl extends ExportBase
  				Cell cell = headerRow.createCell(count);
  				cell.setCellValue(gridColumnInfo.getHeaderText());
  				cell.setCellStyle(style);
- 				if(gridColumnInfo.isWordWrap())
+ 				//not working now
+ 				/*if(gridColumnInfo.isWordWrap())
  				{
  					setColumnWordWrap(workbook,sheet,count);
- 				}
+ 				}*/
          	}
     	}
 	}
@@ -124,10 +132,9 @@ public class ExcelExportImpl extends ExportBase
              	for(int colCount = 0; colCount < this.getExportInfo().getColumns().size(); colCount++)
              	{
              		GridColumnInfo columnInfo = this.getExportInfo().getColumns().get(colCount);
-             		Object colValue = ((objData.get(columnInfo.getDataField()) == null) ? "" : objData.get(columnInfo.getDataField()).toString());
-         			int cellType = getCellDataType(colValue);
-     				Cell cell = row.createCell(colCount,cellType);
-     				setCellValue(cell,cellType,colValue);
+             		Object colValue = objData.get(columnInfo.getDataField());
+     				Cell cell = row.createCell(colCount);
+     				setCellValue(cell,colValue);
      				CellStyle style; 
      				if(rowCount % 2 == 0)
     				{
@@ -180,43 +187,76 @@ public class ExcelExportImpl extends ExportBase
 		}
 	}
 	
-	protected int getCellDataType(Object value)
+	protected void setCellValue(Cell cell,Object value)
 	{
-		int cellType = -1;
-		String className = value.getClass().getSimpleName().toLowerCase();
-		
-		if(className.equals("boolean"))
-		{
-			cellType = Cell.CELL_TYPE_BOOLEAN;
-		}
-		else if(className.equals("double") || className.equals("float") || className.equals("int") || className.equals("integer") 
-				|| className.equals("long") || className.equals("short"))
-		{
-			cellType = Cell.CELL_TYPE_NUMERIC;
-		}
-			
-		else
-		{
-			cellType = Cell.CELL_TYPE_STRING;
-		}
-		
-		return cellType;
-	}
-	
-	protected void setCellValue(Cell cell,int cellType,Object value)
-	{
-		switch(cellType)
-		{
-			case Cell.CELL_TYPE_BOOLEAN:
-				cell.setCellValue((Boolean)value);
-			break;
-			case Cell.CELL_TYPE_NUMERIC:
-				cell.setCellValue((Double)value);
-			break;
-			case Cell.CELL_TYPE_STRING:
-				cell.setCellValue((String)value);
-			break;
-		}
+		  CreationHelper helper = cell.getSheet().getWorkbook().getCreationHelper();
+	      Object newValue = value;
+	      if (value == null)
+	      {
+	         newValue = helper.createRichTextString("");
+	         cell.setCellValue((RichTextString) newValue);
+	         cell.setCellType(Cell.CELL_TYPE_BLANK);
+	      }
+	      else if (value instanceof String)
+	      {
+	         newValue = helper.createRichTextString(value.toString());
+	         cell.setCellValue((RichTextString) newValue);
+	      }
+	      else if (value instanceof RichTextString)
+	      {
+	         cell.setCellValue((RichTextString) value);
+	      }
+	      else if (value instanceof Double)
+	      {
+	         cell.setCellValue((Double) value);
+	      }
+	      else if (value instanceof Integer)
+	      {
+	         cell.setCellValue((Integer) value);
+	      }
+	      else if (value instanceof Float)
+	      {
+	         cell.setCellValue((Float) value);
+	      }
+	      else if (value instanceof Long)
+	      {
+	         cell.setCellValue((Long) value);
+	      }
+	      else if (value instanceof Date)
+	      {
+	         cell.setCellValue((Date) value);
+	      }
+	      else if (value instanceof Calendar)
+	      {
+	         cell.setCellValue((Calendar) value);
+	      }
+	      else if (value instanceof Short)
+	      {
+	         cell.setCellValue((Short) value);
+	      }
+	      else if (value instanceof Byte)
+	      {
+	         cell.setCellValue((Byte) value);
+	      }
+	      else if (value instanceof Boolean)
+	      {
+	         cell.setCellValue((Boolean) value);
+	      }
+	      else if (value instanceof BigInteger)
+	      {
+	         BigInteger bi = (BigInteger) value;
+	         cell.setCellValue(bi.doubleValue());
+	      }
+	      else if (value instanceof BigDecimal)
+	      {
+	         BigDecimal bd = (BigDecimal) value;
+	         cell.setCellValue(bd.doubleValue());
+	      }
+	      else
+	      {
+	         newValue = helper.createRichTextString(value.toString());
+	         cell.setCellValue((RichTextString) newValue);
+	      }
 	}
 	
 	protected void setPrinterConfiguration(Sheet sheet)
