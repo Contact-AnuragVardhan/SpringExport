@@ -61,7 +61,7 @@ public class DataSourceUtil
 		return lstExportData;
 	}
 	
-	private static Map<String,Object> getRowData(ResultSet resultSet,List<GridColumnInfo> columns) throws SQLException
+	protected static Map<String,Object> getRowData(ResultSet resultSet,List<GridColumnInfo> columns) throws SQLException
 	{
 		Map<String,Object> objData = new HashMap<String,Object>();
 		for(GridColumnInfo columnInfo:columns)
@@ -69,6 +69,21 @@ public class DataSourceUtil
 			objData.put(columnInfo.getDataField(),resultSet.getObject(columnInfo.getDataField()));
 		}
 		return objData;
+	}
+	
+	public static char getAlphabetByIndex(int index, boolean isUpperCase)
+	{
+		int startPoint = 0;
+		if(isUpperCase)
+		{
+			startPoint = 64;
+		}
+		else
+		{
+			startPoint = 96;
+		}
+		int charAscii = startPoint + index;
+		return (char)charAscii;
 	}
 
 }
