@@ -142,9 +142,9 @@ public class PDFExportImpl extends ExportBase
      	{
 			GridColumnInfo gridColumnInfo = this.getExportInfo().getColumns().get(count);
  			cell.setPhrase(new Phrase(gridColumnInfo.getHeaderText(),font));
- 			if(gridColumnInfo.getWidth() > -1.0f)
+ 			if(gridColumnInfo.getRelativeWidth() > -1.0f)
  			{
- 				arrColWidth[count] = gridColumnInfo.getWidth();
+ 				arrColWidth[count] = gridColumnInfo.getRelativeWidth();
  			}
  			else
  			{

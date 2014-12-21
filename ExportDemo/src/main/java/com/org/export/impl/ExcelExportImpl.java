@@ -40,7 +40,8 @@ public class ExcelExportImpl extends ExportBase
 	
 	
 	protected final int HEADER_TEXT_HEIGHT = 20;
-	protected int headerRowIndex = 0;
+	protected int titleRowNum = 0;
+	protected int rowIndex = 0;
 	
 	private Workbook workbook = null;
 	public Workbook getWorkbook() {
@@ -77,14 +78,14 @@ public class ExcelExportImpl extends ExportBase
         setPrinterConfiguration(sheet);
         if(this.getExportInfo().getHeaderText() != null && this.getExportInfo().getHeaderText().length() > 0)
 		{
-        	Row titleRow = sheet.createRow(0);
+        	Row titleRow = sheet.createRow(rowIndex++);
+        	titleRowNum = 1;
             titleRow.setHeightInPoints(HEADER_TEXT_HEIGHT);
             Cell titleCell = titleRow.createCell(0);
             titleCell.setCellValue(this.getExportInfo().getHeaderText());
             titleCell.setCellStyle(styles.get("title"));
             String cellRangeAddress = "$A$1:$" + DataSourceUtil.getAlphabetByIndex(this.getExportInfo().getColumns().size(),true)  + "$1";
             sheet.addMergedRegion(CellRangeAddress.valueOf(cellRangeAddress));
-            headerRowIndex = 1;
 		}
         createTable(workbook,sheet,styles);
     }
@@ -104,7 +105,7 @@ public class ExcelExportImpl extends ExportBase
 	{
 		if(workbook!= null && sheet != null)
     	{
-			Row headerRow = sheet.createRow(headerRowIndex);
+			Row headerRow = sheet.createRow(rowIndex++);
          	for(int count = 0; count < this.getExportInfo().getColumns().size(); count++)
          	{
          		GridColumnInfo gridColumnInfo = this.getExportInfo().getColumns().get(count);
@@ -127,7 +128,7 @@ public class ExcelExportImpl extends ExportBase
 			for(int rowCount = 0;rowCount < lstRows.size(); rowCount++)
          	{
 				// (rowCount + 1) as 0 is for Header Row
-        		Row row = sheet.createRow(rowCount + headerRowIndex + 1);
+        		Row row = sheet.createRow(rowIndex++);
         		Map<String,Object> objData = lstRows.get(rowCount);
              	for(int colCount = 0; colCount < this.getExportInfo().getColumns().size(); colCount++)
              	{
@@ -136,7 +137,8 @@ public class ExcelExportImpl extends ExportBase
      				Cell cell = row.createCell(colCount);
      				setCellValue(cell,colValue);
      				CellStyle style; 
-     				if(rowCount % 2 == 0)
+     				//-2 1--> for Header Row and 1 for already done rowIndex++
+     				if((rowIndex - titleRowNum - 2) % 2 == 0)
     				{
      					style = oddStyle;
     				}

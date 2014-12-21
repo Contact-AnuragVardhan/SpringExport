@@ -3,11 +3,18 @@ package com.org.modelView.export.sample.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.org.export.enums.ExportType;
+import com.org.export.model.ExportDataDTO;
+import com.org.export.model.ExportMetaData;
+import com.org.export.model.GridColumnInfo;
+import com.org.export.util.DataSourceUtil;
 import com.org.modelView.export.interfaces.IExport;
 import com.org.modelView.export.model.ExportDTO;
 import com.org.modelView.export.sample.model.BookDTO;
@@ -20,6 +27,38 @@ public class SampleExportController
 	{
 		System.out.println("In getExportJSP");
 		return "export";
+	}
+	
+	@RequestMapping(value = "/download", method = RequestMethod.GET)
+	public String download(HttpServletRequest request) throws IllegalAccessException
+	{
+		ExportDTO export = getExportDTO();
+		
+		List<GridColumnInfo> columns = DataSourceUtil.getColumnListInfo(export.getLstExports());
+		List<ExportDataDTO> dataProvider = null;
+		if(export.isHeirarchicalData())
+		{
+			dataProvider = DataSourceUtil.getGroupedData(export.getLstExports(), columns, export.getParentColumn());
+		}
+		else
+		{
+			dataProvider = DataSourceUtil.getNonGroupedData(export.getLstExports(), columns);
+		}
+		
+		ExportMetaData pdfExportMetaData = new ExportMetaData();
+		
+		pdfExportMetaData.setExportType(export.getExportType());
+		pdfExportMetaData.setColumns(columns);
+		pdfExportMetaData.setFileName(export.getFileName());
+		pdfExportMetaData.setSheetName(export.getExcelSheetName());
+		pdfExportMetaData.setHeaderText(export.getHeaderText());
+		pdfExportMetaData.setIsHeirarchicalData(export.isHeirarchicalData());
+		pdfExportMetaData.setParentColumn(export.getParentColumn());
+		pdfExportMetaData.setColumns(columns);
+		pdfExportMetaData.setDataProvider(dataProvider);
+		request.getSession().setAttribute("exportData", pdfExportMetaData);
+		
+		return "forward:/exportDoc";
 	}
 	
 	@RequestMapping(value = "/downloadExcel", method = RequestMethod.GET)
@@ -51,10 +90,13 @@ public class SampleExportController
                 "June 29, 2011", 31.98F));
         
         ExportDTO export = new ExportDTO();
+        export.setExportType(ExportType.XLS);
 		export.setFileName("Book Record");
         export.setExcelSheetName("Book Record");
         export.setLstExports(listBooks);
         export.setHeaderText("Recommended books for Spring Framework");
+        export.setHeirarchicalData(true);
+        export.setParentColumn(new GridColumnInfo("isbn","IsBN", 1, 30.0f, 3.0f, false));
 
         return export;
 	}

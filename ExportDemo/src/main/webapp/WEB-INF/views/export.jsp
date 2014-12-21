@@ -67,7 +67,7 @@
 			gridColumnInfo.setDataField(dataField);
 			gridColumnInfo.setHeaderText(headerText);
 			gridColumnInfo.setOrder(1);
-			//gridColumnInfo.setWidth(3);
+			gridColumnInfo.setRelativeWidth(3);
 			gridColumnInfo.setWidth(40.0f);
 			gridColumnInfo.setWordWrap(true);
 			
@@ -82,6 +82,10 @@
 	<div align="center">
         <h1>Spring MVC Excel View Demo (Apache POI)</h1>
         <h3><a href="downloadExcel">Download Excel Document</a></h3>
+    </div>
+    <div align="center">
+        <h1>Spring MVC Export View Demo</h1>
+        <h3><a href="download">Download Excel Document</a></h3>
     </div>
     <div align="center">
         <h1>Servlet API</h1>
