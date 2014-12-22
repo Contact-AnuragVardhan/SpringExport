@@ -8,6 +8,7 @@ import java.util.List;
  
 
 
+
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -18,7 +19,7 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfPTableEvent;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.BaseColor;
-import com.org.modelView.export.sample.model.BookDTO;
+import com.org.export.sample.model.BookDTO;
 
 public class PDFTableExample implements PdfPTableEvent 
 {

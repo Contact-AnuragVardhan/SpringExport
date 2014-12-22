@@ -4,9 +4,9 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.org.modelView.export.annotation.ExportInfo;
-import com.org.modelView.export.interfaces.IExport;
-import com.org.modelView.export.sample.model.BookDTO;
+import com.org.export.annotation.ExportInfo;
+import com.org.export.interfaces.IExport;
+import com.org.export.sample.model.BookDTO;
 
 public class CustomAnnotationTest 
 {

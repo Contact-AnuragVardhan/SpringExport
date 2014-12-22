@@ -1,4 +1,4 @@
-package com.org.modelView.export.sample.controller;
+package com.org.export.sample.controller;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,16 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.servlet.ModelAndView;
 
 import com.org.export.enums.ExportType;
+import com.org.export.interfaces.IExport;
+import com.org.export.model.ExportDTO;
 import com.org.export.model.ExportDataDTO;
 import com.org.export.model.ExportMetaData;
 import com.org.export.model.GridColumnInfo;
+import com.org.export.sample.model.BookDTO;
 import com.org.export.util.DataSourceUtil;
-import com.org.modelView.export.interfaces.IExport;
-import com.org.modelView.export.model.ExportDTO;
-import com.org.modelView.export.sample.model.BookDTO;
 
 @Controller
 public class SampleExportController 
@@ -59,20 +58,6 @@ public class SampleExportController
 		request.getSession().setAttribute("exportData", pdfExportMetaData);
 		
 		return "forward:/exportDoc";
-	}
-	
-	@RequestMapping(value = "/downloadExcel", method = RequestMethod.GET)
-	public ModelAndView exportToExcel()
-	{
-		ExportDTO export = getExportDTO();
-		return new ModelAndView("excelView", "exportInfo", export);
-	}
-	
-	@RequestMapping(value = "/downloadPDF", method = RequestMethod.GET)
-	public ModelAndView exportToPDF()
-	{
-		ExportDTO export = getExportDTO();
-		return new ModelAndView("pdfView", "exportInfo", export);
 	}
 	
 	private ExportDTO getExportDTO()

@@ -1,10 +1,9 @@
-package com.org.modelView.export.model;
+package com.org.export.model;
 
 import java.util.List;
 
 import com.org.export.enums.ExportType;
-import com.org.export.model.GridColumnInfo;
-import com.org.modelView.export.interfaces.IExport;
+import com.org.export.interfaces.IExport;
 
 public class ExportDTO 
 {
