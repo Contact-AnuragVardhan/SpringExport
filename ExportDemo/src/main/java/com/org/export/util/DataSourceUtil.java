@@ -15,7 +15,7 @@ import com.org.export.model.GridColumnInfo;
 
 public class DataSourceUtil 
 {
-	public static List<GridColumnInfo> getColumnListInfo(List<IExport> lstExport)
+	public static List<GridColumnInfo> getColumnListInfo(List<? extends IExport> lstExport)
 	{
 		List<GridColumnInfo> lstColumnInfo = new ArrayList<GridColumnInfo>();
 		if(lstExport!=null && lstExport.size() > 0)
@@ -57,7 +57,7 @@ public class DataSourceUtil
 		return columnInfo;
 	}
 	
-	public static List<ExportDataDTO> getGroupedData(List<IExport> lstExport,List<GridColumnInfo> columns,GridColumnInfo parentColumn) throws IllegalAccessException
+	public static List<ExportDataDTO> getGroupedData(List<? extends IExport> lstExport,List<GridColumnInfo> columns,GridColumnInfo parentColumn) throws IllegalAccessException
 	{
 		List<ExportDataDTO> lstExportData = null;
 		if(lstExport!=null && lstExport.size() > 0 && columns!=null && columns.size() > 0 && parentColumn!=null)
@@ -110,7 +110,7 @@ public class DataSourceUtil
 		return lstExportData;
 	}
 	
-	public static List<ExportDataDTO> getNonGroupedData(List<IExport> lstExport,List<GridColumnInfo> columns) throws IllegalAccessException
+	public static List<ExportDataDTO> getNonGroupedData(List<? extends IExport> lstExport,List<GridColumnInfo> columns) throws IllegalAccessException
 	{
 		List<ExportDataDTO> lstExportData = null;
 		if(lstExport!=null && lstExport.size() > 0 && columns!=null && columns.size() > 0)

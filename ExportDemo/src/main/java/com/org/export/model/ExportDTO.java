@@ -8,7 +8,7 @@ import com.org.export.interfaces.IExport;
 public class ExportDTO 
 {
 	private ExportType exportType;
-	private List<IExport> lstExports;
+	private List<? extends IExport> lstExports;
 	private String fileName;
 	private String excelSheetName;
 	private String headerText;
@@ -22,10 +22,10 @@ public class ExportDTO
 	public void setHeaderText(String headerText) {
 		this.headerText = headerText;
 	}
-	public List<IExport> getLstExports() {
+	public List<? extends IExport> getLstExports() {
 		return lstExports;
 	}
-	public void setLstExports(List<IExport> lstExports) {
+	public void setLstExports(List<? extends IExport> lstExports) {
 		this.lstExports = lstExports;
 	}
 	public String getFileName() {
