@@ -1,9 +1,13 @@
 package com.org.export.sample.controller;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,7 +33,7 @@ public class SampleExportController
 	}
 	
 	@RequestMapping(value = "/download", method = RequestMethod.GET)
-	public String download(HttpServletRequest request) throws IllegalAccessException
+	public void download(HttpServletRequest request,HttpServletResponse response) throws IllegalAccessException,IOException,ServletException
 	{
 		ExportDTO export = getExportDTO();
 		
@@ -55,9 +59,10 @@ public class SampleExportController
 		pdfExportMetaData.setParentColumn(export.getParentColumn());
 		pdfExportMetaData.setColumns(columns);
 		pdfExportMetaData.setDataProvider(dataProvider);
-		request.getSession().setAttribute("exportData", pdfExportMetaData);
 		
-		return "forward:/exportDoc";
+		request.setAttribute("exportData", pdfExportMetaData);
+		RequestDispatcher rd = request.getRequestDispatcher("exportDoc");
+		rd.forward(request,response);
 	}
 	
 	private ExportDTO getExportDTO()
@@ -75,7 +80,7 @@ public class SampleExportController
                 "June 29, 2011", 31.98F));
         
         ExportDTO export = new ExportDTO();
-        export.setExportType(ExportType.XLS);
+        export.setExportType(ExportType.PDF);
 		export.setFileName("Book Record");
         export.setExcelSheetName("Book Record");
         export.setLstExports(listBooks);

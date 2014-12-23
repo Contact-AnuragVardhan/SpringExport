@@ -47,7 +47,16 @@ public abstract class AbstractExport extends HttpServlet
 	{
 		try
 		{
-			Object objMetaData = request.getSession().getAttribute(META_DATA_NAME);
+			Object objMetaData = null;
+			if(request.getAttribute(META_DATA_NAME) != null)
+			{
+				objMetaData = request.getAttribute(META_DATA_NAME);
+			}
+			else
+			{
+				objMetaData = request.getSession().getAttribute(META_DATA_NAME);
+				request.getSession().setAttribute(META_DATA_NAME,null);
+			}
 			if(objMetaData == null || !(objMetaData instanceof ExportMetaData))
 			{
 				throw new Exception("Export Meta Data is missing");

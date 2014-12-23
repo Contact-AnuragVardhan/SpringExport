@@ -75,21 +75,9 @@
 		}
 	%>
 	<!-- http://www.codejava.net/frameworks/spring/spring-mvc-with-excel-view-example-apache-poi-and-jexcelapi -->
-	<div align="center">
-		<h1>Spring MVC PDF View Demo (using iText library)</h1>
-		<h3><a href="downloadPDF">Download PDF Document</a></h3>
-	</div>
-	<div align="center">
-        <h1>Spring MVC Excel View Demo (Apache POI)</h1>
-        <h3><a href="downloadExcel">Download Excel Document</a></h3>
-    </div>
     <div align="center">
         <h1>Spring MVC Export View Demo</h1>
-        <h3><a href="download">Download Excel Document</a></h3>
-    </div>
-    <div align="center">
-        <h1>Servlet API</h1>
-        <h3><a href="ExportServlet">Download Excel Document</a></h3>
+        <h3><a href="download">Download Document</a></h3>
     </div>
     <form name="formPDFExport" action="exportDoc" method="post">
     	<%
@@ -104,6 +92,7 @@
     		pdfExportMetaData.setIsHeirarchicalData(isHeirarchicalData);
     		pdfExportMetaData.setParentColumn(parentElement);
     		pdfExportMetaData.setDataProvider(dataProvider);
+    		
     	    session.setAttribute("exportData", pdfExportMetaData);
     	%>
     	<center><input type="BUTTON" onclick="exportPDF()">PDF Export</input> </center>  
@@ -122,6 +111,7 @@
     		excelExportMetaData.setIsHeirarchicalData(isHeirarchicalData);
     		excelExportMetaData.setParentColumn(parentElement);
     		excelExportMetaData.setDataProvider(dataProvider);
+    		
     	    session.setAttribute("exportData", excelExportMetaData);
     	%>
     	<center><input type="BUTTON" onclick="exportExcel()">Excel Export</input> </center>  
