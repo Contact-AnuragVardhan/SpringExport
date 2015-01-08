@@ -19,6 +19,7 @@ import com.org.export.model.ExportDTO;
 import com.org.export.model.ExportDataDTO;
 import com.org.export.model.ExportMetaData;
 import com.org.export.model.GridColumnInfo;
+import com.org.export.model.LogoDetails;
 import com.org.export.sample.model.BookDTO;
 import com.org.export.util.DataSourceUtil;
 
@@ -89,6 +90,13 @@ public class SampleExportController
         export.setHeaderText("Recommended books for Spring Framework");
         export.setHeirarchicalData(true);
         export.setParentColumn(new GridColumnInfo("isbn","IsBN", 1, 30.0f, 3.0f, false));
+        
+        LogoDetails logoDetails = new LogoDetails();
+		logoDetails.setPath(this.getClass().getResource("/assets/logo2.png").getPath());
+		logoDetails.setScaleWidthBy(73.0f);
+		logoDetails.setScaleHeightBy(70.0f);
+		logoDetails.setHeight(40.0f);
+		export.setLogoDetails(logoDetails);
 
         return export;
 	}

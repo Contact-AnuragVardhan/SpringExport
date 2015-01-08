@@ -10,6 +10,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
 import com.itextpdf.text.Font;
+import com.itextpdf.text.Font.FontFamily;
 import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
@@ -336,32 +337,35 @@ public class PDFExportImpl extends ExportBase
 		table.setWidths(arrColWidth);
 	}
 	
-	protected void createTableBody(PdfPTable table,List<Map<String,Object>> lstRows) throws IllegalAccessException
+    protected void createTableBody(PdfPTable table,List<Map<String,Object>> lstRows) throws IllegalAccessException
 	{
 		if(lstRows != null && lstRows.size() > 0)
 		{
+			Font font = new Font(FontFamily.UNDEFINED,10, Font.NORMAL,TABLE_BODY_TEXT_COLOR);
+			PdfPCell cell = new PdfPCell();
 			for(int rowCount = 0;rowCount < lstRows.size(); rowCount++)
          	{
 				if(rowCount % 2 == 0)
 				{
-					table.getDefaultCell().setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[0]);
+					cell.setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[0]);
+					//table.getDefaultCell().setBackgroundColor();
 				}
 				else
 				{
-					table.getDefaultCell().setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[1]);
+					cell.setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[1]);
+					//table.getDefaultCell().setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[1]);
 				}
 				Map<String,Object> objData = lstRows.get(rowCount);
 				for(int colCount = 0; colCount < this.getExportInfo().getColumns().size(); colCount++)
 	            {
 					GridColumnInfo columnInfo = this.getExportInfo().getColumns().get(colCount);
 					String colValue = ((objData.get(columnInfo.getDataField()) == null) ? "" : objData.get(columnInfo.getDataField()).toString());
-					Font font = FontFactory.getFont(FontFactory.defaultEncoding);
+					/*Font font = FontFactory.getFont(FontFactory.defaultEncoding);
 					font.setColor(TABLE_BODY_TEXT_COLOR);
 					font.setStyle(Font.STRIKETHRU);
-					font.setSize(5);
-					PdfPCell cell = new PdfPCell();
+					font.setSize(5);*/
 					cell.setPhrase(new Phrase(colValue,font));
-					table.addCell(colValue);
+					table.addCell(cell);
 		        }
 	         }
 		}
