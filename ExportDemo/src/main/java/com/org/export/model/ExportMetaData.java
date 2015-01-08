@@ -10,6 +10,8 @@ public class ExportMetaData
 	private String fileName;
 	private String sheetName;
 	private String headerText;
+	private LogoDetails logoDetails;
+	private String[] fileImportPaths;
 	private boolean isHeirarchicalData;
 	private GridColumnInfo parentColumn;
 	private List<ExportDataDTO> dataProvider;
@@ -63,5 +65,18 @@ public class ExportMetaData
 	public void setDataProvider(List<ExportDataDTO> dataProvider) {
 		this.dataProvider = dataProvider;
 	}
+	public LogoDetails getLogoDetails() {
+		return logoDetails;
+	}
+	public void setLogoDetails(LogoDetails logoDetails) {
+		this.logoDetails = logoDetails;
+	}
+	public String[] getFileImportPaths() {
+		return fileImportPaths;
+	}
+	public void setFileImportPaths(String[] fileImportPaths) {
+		this.fileImportPaths = fileImportPaths;
+	}
+	
 	
 }

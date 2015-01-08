@@ -1,3 +1,5 @@
+<%@page import="com.org.export.model.LogoDetails"%>
+<%@page import="java.io.InputStream"%>
 <%@page import="com.org.export.enums.ExportType"%>
 <%@page import="com.org.export.util.DataSourceUtil"%>
 <%@page import="com.org.export.model.ExportDataDTO"%>
@@ -23,26 +25,34 @@
 		public boolean isHeirarchicalData = true;
 		public List<GridColumnInfo> columns = null;
 		public GridColumnInfo parentElement = null;
+		public LogoDetails logoDetails = null;
 		
 		public void getData()
 		{
-			parentElement = getColumnInfo("BusinessDate","Business Date");
+			logoDetails = new LogoDetails();
+    		logoDetails.setPath(this.getClass().getResource("/assets/logo2.png").getPath());
+    		logoDetails.setScaleWidthBy(73.0f);
+    		logoDetails.setScaleHeightBy(70.0f);
+    		logoDetails.setHeight(40.0f);
+    		
+			parentElement = getColumnInfo("EffectiveDate","Effective Date");
 			ResultSet rs = null;
 			String url = "jdbc:jtds:sqlserver://TOTWSCTDEVPCA01;databaseName=complianceportal"; 
 			String username = "syscompliancedev"; 
 			String password = "Nomura99";
 			columns = new ArrayList<GridColumnInfo>();
-    		columns.add(getColumnInfo("TaskID","Task ID"));
-    		columns.add(getColumnInfo("BusinessDate","Business Date"));
+    		columns.add(getColumnInfo("ID","Task ID"));
+    		columns.add(getColumnInfo("Name","Task Name"));
+    		columns.add(getColumnInfo("EffectiveDate","Effective Date"));
     		columns.add(getColumnInfo("CreatedBy","Created By"));
-    		columns.add(getColumnInfo("Comments","Comments"));
-    		columns.add(getColumnInfo("GroupId","Group ID"));
+    		columns.add(getColumnInfo("CreatedDate","Created Date"));
+    		columns.add(getColumnInfo("UpdatedBy","Updated By"));
 			try
 		    {
 		      Class.forName("net.sourceforge.jtds.jdbc.Driver"); 
 		      Connection conn = DriverManager.getConnection(url,username,password);  
 		      Statement stmt = conn.createStatement();
-		      rs = stmt.executeQuery("SELECT TaskID,BusinessDate,CreatedBy,Comments,GroupId FROM dbo.TM_TASK_TO_EXECUTE");
+		      rs = stmt.executeQuery("SELECT ID,Name,EffectiveDate,CreatedBy,CreatedDate,UpdatedBy FROM dbo.TM_TASK_MASTER");
 		      if(isHeirarchicalData)
 		      {
 		    	  dataProvider = DataSourceUtil.getGroupedData(rs,columns,parentElement);
@@ -89,6 +99,7 @@
     		pdfExportMetaData.setColumns(columns);
     		pdfExportMetaData.setFileName("Tasks");
     		pdfExportMetaData.setHeaderText("Tasks Details");
+    		pdfExportMetaData.setLogoDetails(logoDetails);
     		pdfExportMetaData.setIsHeirarchicalData(isHeirarchicalData);
     		pdfExportMetaData.setParentColumn(parentElement);
     		pdfExportMetaData.setDataProvider(dataProvider);
@@ -103,16 +114,16 @@
     		getData();
     		ExportMetaData excelExportMetaData = new ExportMetaData();
     		
-    		
     		excelExportMetaData.setExportType(ExportType.XLS);
     		excelExportMetaData.setColumns(columns);
     		excelExportMetaData.setFileName("Tasks");
     		excelExportMetaData.setHeaderText("Tasks Details");
+    		pdfExportMetaData.setLogoDetails(logoDetails);
     		excelExportMetaData.setIsHeirarchicalData(isHeirarchicalData);
     		excelExportMetaData.setParentColumn(parentElement);
     		excelExportMetaData.setDataProvider(dataProvider);
     		
-    	    session.setAttribute("exportData", excelExportMetaData);
+    	    //session.setAttribute("exportData", excelExportMetaData);
     	%>
     	<center><input type="BUTTON" onclick="exportExcel()">Excel Export</input> </center>  
     </form>

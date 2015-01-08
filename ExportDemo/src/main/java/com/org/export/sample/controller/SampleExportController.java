@@ -59,6 +59,8 @@ public class SampleExportController
 		pdfExportMetaData.setParentColumn(export.getParentColumn());
 		pdfExportMetaData.setColumns(columns);
 		pdfExportMetaData.setDataProvider(dataProvider);
+		pdfExportMetaData.setFileImportPaths(export.getFileImportPaths());
+		pdfExportMetaData.setLogoDetails(export.getLogoDetails());
 		
 		request.setAttribute("exportData", pdfExportMetaData);
 		RequestDispatcher rd = request.getRequestDispatcher("exportDoc");

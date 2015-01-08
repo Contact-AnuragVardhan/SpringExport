@@ -89,6 +89,8 @@ public abstract class AbstractExport extends HttpServlet
 			this.getExportInfo().setColumns(exportMetaData.getColumns());
 			this.getExportInfo().setHeirarchicalData(exportMetaData.getIsHeirarchicalData());
 			this.getExportInfo().setHeaderText(exportMetaData.getHeaderText());
+			this.getExportInfo().setLogoDetails(exportMetaData.getLogoDetails());
+			this.getExportInfo().setFileImportPaths(exportMetaData.getFileImportPaths());
 			this.getExportInfo().setDataProvider(exportMetaData.getDataProvider());
 			this.getExportInfo().setParentColumn(exportMetaData.getParentColumn());
 		}

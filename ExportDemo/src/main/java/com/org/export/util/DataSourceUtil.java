@@ -120,6 +120,7 @@ public class DataSourceUtil
         	{
         		lstExportData = new ArrayList<ExportDataDTO>();
     			ExportDataDTO exportData =  new ExportDataDTO();
+    			exportData.setLstChildren(new ArrayList<Map<String,Object>>());
 	         	for(int rowCount = 0;rowCount < lstExport.size(); rowCount++)
 	         	{
 	        		IExport export = lstExport.get(rowCount);

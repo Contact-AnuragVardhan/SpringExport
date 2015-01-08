@@ -15,6 +15,8 @@ public class ExportInfo
 	private List<GridColumnInfo> columns;
 	private boolean isHeirarchicalData;
 	private List<ExportDataDTO> dataProvider;
+	private LogoDetails logoDetails;
+	private String[] fileImportPaths;
 	private String headerText;
 	private OutputStream outputStream;
 	
@@ -77,5 +79,17 @@ public class ExportInfo
 	}
 	public void setParentColumn(GridColumnInfo parentColumn) {
 		this.parentColumn = parentColumn;
+	}
+	public String[] getFileImportPaths() {
+		return fileImportPaths;
+	}
+	public void setFileImportPaths(String[] fileImportPaths) {
+		this.fileImportPaths = fileImportPaths;
+	}
+	public LogoDetails getLogoDetails() {
+		return logoDetails;
+	}
+	public void setLogoDetails(LogoDetails logoDetails) {
+		this.logoDetails = logoDetails;
 	}
 }

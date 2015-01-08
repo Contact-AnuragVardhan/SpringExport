@@ -14,6 +14,8 @@ public class ExportDTO
 	private String headerText;
 	private boolean isHeirarchicalData;
 	private GridColumnInfo parentColumn;
+	private LogoDetails logoDetails;
+	private String[] fileImportPaths;
 
 	
 	public String getHeaderText() {
@@ -57,5 +59,17 @@ public class ExportDTO
 	}
 	public void setExportType(ExportType exportType) {
 		this.exportType = exportType;
+	}
+	public LogoDetails getLogoDetails() {
+		return logoDetails;
+	}
+	public void setLogoDetails(LogoDetails logoDetails) {
+		this.logoDetails = logoDetails;
+	}
+	public String[] getFileImportPaths() {
+		return fileImportPaths;
+	}
+	public void setFileImportPaths(String[] fileImportPaths) {
+		this.fileImportPaths = fileImportPaths;
 	}
 }
