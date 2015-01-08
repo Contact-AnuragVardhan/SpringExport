@@ -9,7 +9,6 @@ import java.util.List;
 
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.Chapter;
-import com.itextpdf.text.Chunk;
 import com.itextpdf.text.Document;
 import com.itextpdf.text.DocumentException;
 import com.itextpdf.text.Element;
@@ -19,14 +18,6 @@ import com.itextpdf.text.Image;
 import com.itextpdf.text.PageSize;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.Phrase;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.Section;
-import com.itextpdf.text.pdf.BaseFont;
-import com.itextpdf.text.pdf.ColumnText;
-import com.itextpdf.text.pdf.PdfContentByte;
-import com.itextpdf.text.pdf.PdfCopy;
-import com.itextpdf.text.pdf.PdfDocument;
-import com.itextpdf.text.pdf.PdfImportedPage;
 import com.itextpdf.text.pdf.PdfPCell;
 import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfReader;
@@ -260,7 +251,7 @@ public class PDFHeaderExample
 	        }
 	        table.getDefaultCell().setBackgroundColor(null);
 	        // There are three special rows
-	       // table.setHeaderRows(3);
+	        table.setHeaderRows(2);
 	        // One of them is a footer
 	        //table.setFooterRows(1);
 	        // Now let's loop over the screenings
@@ -299,6 +290,89 @@ public class PDFHeaderExample
 			List<BookDTO> listBooks = new ArrayList<BookDTO>();
 	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
 	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));  listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	    	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	    	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	    	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Effective Java Effective Java Effective Java Effective Java Effective Java", "Joshua Bloch", "0321356683",
+	                "May 28, 2008", 38.11F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
+	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
+	                "0596009208", "February 9, 2005", 30.80F));
 	        listBooks.add(new BookDTO("Head First Java", "Kathy Sierra & Bert Bates",
 	                "0596009208", "February 9, 2005", 30.80F));
 	        listBooks.add(new BookDTO("Java Generics and Collections",
