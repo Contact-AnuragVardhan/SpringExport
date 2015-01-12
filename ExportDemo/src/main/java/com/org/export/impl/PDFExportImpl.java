@@ -349,7 +349,11 @@ public class PDFExportImpl extends ExportBase
 	{
 		if(lstRows != null && lstRows.size() > 0)
 		{
+<<<<<<< HEAD
 			Font font = new Font(FontFamily.UNDEFINED,BODY_FONT_SIZE, Font.NORMAL,TABLE_BODY_TEXT_COLOR);
+=======
+			Font font = new Font(FontFamily.UNDEFINED,10, Font.NORMAL,TABLE_BODY_TEXT_COLOR);
+>>>>>>> branch 'master' of https://github.com/Contact-AnuragVardhan/SpringExport
 			PdfPCell cell = new PdfPCell();
 			for(int rowCount = 0;rowCount < lstRows.size(); rowCount++)
          	{
@@ -368,6 +372,13 @@ public class PDFExportImpl extends ExportBase
 	            {
 					GridColumnInfo columnInfo = this.getExportInfo().getColumns().get(colCount);
 					String colValue = ((objData.get(columnInfo.getDataField()) == null) ? "" : objData.get(columnInfo.getDataField()).toString());
+<<<<<<< HEAD
+=======
+					/*Font font = FontFactory.getFont(FontFactory.defaultEncoding);
+					font.setColor(TABLE_BODY_TEXT_COLOR);
+					font.setStyle(Font.STRIKETHRU);
+					font.setSize(5);*/
+>>>>>>> branch 'master' of https://github.com/Contact-AnuragVardhan/SpringExport
 					cell.setPhrase(new Phrase(colValue,font));
 					table.addCell(cell);
 		        }
