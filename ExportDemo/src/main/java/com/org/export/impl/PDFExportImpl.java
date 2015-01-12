@@ -356,12 +356,10 @@ public class PDFExportImpl extends ExportBase
 				if(rowCount % 2 == 0)
 				{
 					cell.setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[0]);
-					//table.getDefaultCell().setBackgroundColor();
 				}
 				else
 				{
 					cell.setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[1]);
-					//table.getDefaultCell().setBackgroundColor(TABLE_BODY_ALTERNATE_COLOR[1]);
 				}
 				Map<String,Object> objData = lstRows.get(rowCount);
 				for(int colCount = 0; colCount < this.getExportInfo().getColumns().size(); colCount++)
