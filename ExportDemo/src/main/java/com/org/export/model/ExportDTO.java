@@ -14,6 +14,7 @@ public class ExportDTO
 	private String headerText;
 	private boolean isHeirarchicalData;
 	private GridColumnInfo parentColumn;
+	private String[] columnsToBeRemoved;//Array of dataField for the columns which needs to removed from the Annotation List
 	private LogoDetails logoDetails;
 	private String[] fileImportPaths;
 
@@ -71,5 +72,11 @@ public class ExportDTO
 	}
 	public void setFileImportPaths(String[] fileImportPaths) {
 		this.fileImportPaths = fileImportPaths;
+	}
+	public String[] getColumnsToBeRemoved() {
+		return columnsToBeRemoved;
+	}
+	public void setColumnsToBeRemoved(String[] columnsToBeRemoved) {
+		this.columnsToBeRemoved = columnsToBeRemoved;
 	}
 }

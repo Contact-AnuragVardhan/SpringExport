@@ -15,6 +15,28 @@ import com.org.export.model.GridColumnInfo;
 
 public class DataSourceUtil 
 {
+	public static List<GridColumnInfo> getColumnListInfo(List<? extends IExport> lstExport,String[] columnsToBeRemoved)
+	{
+		List<GridColumnInfo> lstColumnInfo = getColumnListInfo(lstExport);
+		if(lstColumnInfo!=null && lstColumnInfo.size() > 0 && columnsToBeRemoved!=null && columnsToBeRemoved.length > 0)
+    	{
+			int columnCount = lstColumnInfo.size();
+         	for(int count = columnCount - 1; count >= 0; count--)
+         	{
+         		GridColumnInfo gridColumn = lstColumnInfo.get(count);
+         		for(String dataField:columnsToBeRemoved)
+             	{
+         			if(gridColumn.getDataField() != null && gridColumn.getDataField().equalsIgnoreCase(dataField))
+         			{
+         				lstColumnInfo.remove(count);
+         			}
+             	}
+         	}
+    	}
+		
+		return lstColumnInfo;
+	}
+	
 	public static List<GridColumnInfo> getColumnListInfo(List<? extends IExport> lstExport)
 	{
 		List<GridColumnInfo> lstColumnInfo = new ArrayList<GridColumnInfo>();

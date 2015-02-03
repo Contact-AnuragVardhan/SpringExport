@@ -1,0 +1,307 @@
+File:           AspectJ Installation and Deployment
+Date:           08/13/09
+Version:      1.0
+Author:      njb7ty
+
+This document describes:
+     How to install AspectJ in the Eclipse IDE (version 3.4.2).
+     How to get it to work on a stand-alone application.
+     How to get it to work in Tomcat running within the Eclipse development enviornment.
+     How to deploy it (outside of Eclipse) on Tomcat with the project being a war file.
+
+Disclaimer:
+This is the first draft of this document.
+Therefore, its likely to contain errors.
+I'm just began learning aspectj so don't assume
+I know what I'm talking about!
+
+
+references:
+Aspectj home page:
+     http://www.eclipse.org/aspectj/
+
+The AspectJ Programmer Guide:
+     http://www.eclipse.org/aspectj/doc/released/devguide/index.html
+
+Tomcat load-time weaving setup (5.0+):
+     http://static.springsource.org/spring/docs/2.5.x/reference/orm.html#orm-jpa-setup-lcemfb-tomcat
+
+
+*******************
+How to install AspectJ in the Eclipse IDE (version 3.4.2):
+
+* Go to: http://eclipse.org/ajdt/downloads/ and note there is a update website
+listed as: http://download.eclipse.org/tools/ajdt/35/update 
+
+* In Eclipse, go to: eclipse->help->software updates->find->install->search for new features->new remote site.
+
+* In the dialog box, enter 'aspectjForEclpise as a name, and this url (from the above):
+http://download.eclipse.org/tools/ajdt/34/dev/update
+
+Note: Many versions of Eclipse have trouble installing plugins such as the one above
+due to the Eclipse group messing up the update utility in Eclipse. You will have to
+resolve that issue on your own if you can't get the update utility to work.
+
+* Restart Eclipse, verify that the menu item : file->new->aspectj exists.
+If it doesn't, you didn't install the plugin correctly.
+
+******************** 
+How to get it to work on a stand-alone application:
+
+We'll create an aspect that prints to the console whenever the main() function of a specific
+class is called. If it prints to the console, the installation works.
+
+* Create a new java project (not tomcat project).
+
+* Create the following class (to test the aspect we'll create later):
+note its under the package 'com.myCompany'):
+
+package com.myCompany;
+
+public class MainMethodTestCase {
+
+     /** constructor */
+     public MainMethodTestCase(String[] args){
+          System.out.println("MainTestCase() called normally");
+     }
+     
+     public static void main(String[] args){
+          
+          new MainMethodTestCase(args);
+     }
+}
+
+* right click on MainMethodTestCase, run as an application. 
+Verify it prints to the console 'MainTestCase() called normally'.
+
+
+
+* create a new aspect via file->new->Aspectj->aspect called MainMethodAspect
+under the com.myCompany package within Eclipse 
+
+* Put the following content within the aspect file:
+
+package com.myCompany;
+
+public aspect MainMethodAspect {
+
+     //for any function that that executes MainMethodTestCase's main(String[]) function
+     pointcut mainMethod() : execution(public static void MainMethodTestCase.main(String[]));
+
+     after() returning : mainMethod() {
+          System.out.println("Hello from AspectJ");
+     }
+
+}
+
+
+* Verify you see an arrow somewhere in the left column of both files.
+This indicates that the aspect has found a class that it will apply itself to.
+
+* Select MainMethodTestCase.java, right click on it, run as an application.
+Verify this is sent to the console:
+     'MainTestCase() called normally'
+     'Hello from AspectJ'
+
+Getting 'Hello from AspectJ' shows Aspectj is now verified as working.
+
+* Note there is no need for a aop.xml file for the above
+(An aop.xml will be necessary to run the aspect in Tomcat
+as described later)
+
+
+******************** 
+Creating a Tomcat project that uses a servlet:
+
+We'll need to create this servlet project to eventually test an aspect against.
+
+* Create a new Tomcat project called 'AspectjOnTomcatExample'
+
+* Create the following servlet within the com.myCompany package:
+
+package com.myCompany;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+/** to run this on a browser:
+* http://localhost:8080/AspectjOnTomcatExample/MyServlet 
+* 
+*/
+public class MyServlet extends HttpServlet{
+     
+     public void doGet(HttpServletRequest request, HttpServletResponse response){
+          
+          PrintWriter out= null;
+          try {
+               out = response.getWriter();
+               out.write("hello from MyServlet");     
+          } catch (IOException e) {
+               
+               e.printStackTrace();
+          } finally {
+               if(out!=null)
+                    out.close();
+          }
+     }
+}
+
+* create the following web.xml file under the WEB-INF folder:
+
+<?xml version="1.0" encoding="ISO-8859-1"?>
+
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+version="2.4">
+
+<servlet>
+          <servlet-name>MyServlet</servlet-name>
+          <servlet-class>com.myCompany.MyServlet</servlet-class>
+</servlet>
+
+     <servlet-mapping>
+     <servlet-name>MyServlet</servlet-name>
+     <url-pattern>/MyServlet/*</url-pattern>
+     </servlet-mapping>
+     
+</web-app>
+
+* Verify under tomcat's <catalina_home>/conf/localhost folder you have
+a AspectjOnTomcatExamle.xml file with something like the following
+content (Eclipse should have generated it):
+
+<Context path="/AspectjOnTomcatExample" 
+     reloadable="true" 
+     docBase="C:\Program Files\Eclipse\workspace\AspectjOnTomcatExample" 
+     workDir="C:\Program Files\Eclipse\workspace\AspectjOnTomcatExample\work" 
+/>
+
+
+* Start up tomcat under Eclipse, open up a browser, and
+go to the following URL and verify 'hello from MyServlet' 
+appears in the browser:
+http://localhost:8080/AspectjOnTomcatExample/MyServlet
+
+
+******************** 
+Converting a Tomcat project into an AspectJ project
+
+
+* select the project icon, right click, and select 
+'aspectj tools'->'convert to aspectj project'
+
+
+Note: you could use the following to remove aspectj ability 
+(for situations where you want to deploy the project 
+in production without aspectj):
+
+'aspectj tools'->'remove aspectj capability'
+
+************************ 
+How to get it to work in Tomcat running within the Eclipse development enviornment.
+
+* Create a new aspect in com.myCompany package called MyServletAspect with the following content:
+
+package com.myCompany;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+public aspect MyServletAspect {
+
+     pointcut doGet() : execution(public void MyServlet.doGet(HttpServletRequest,HttpServletResponse));
+
+     after() returning : doGet() {
+          System.out.println("Hello from doGet (via aspectj)");
+     }
+     
+     
+}
+
+* Verify you see an arrow somewhere in the left column of both files (MyServlet.java, MyServletAspect.aj).
+This indicates that the aspect has found a class that it will apply itself to.
+
+Creation of the aop.xml file:
+
+If you run tomcat at this point, call up a browser and run the servlet (as was done above),
+the aspect will not run. This is because you don't have an aop.xml file.
+
+
+* In Eclipse, within your project, locate the 'src' folder and create a META-INF folder.
+
+* create an aop.xml file under src/META-INF folder of the project with the following contents:
+
+<!DOCTYPE aspectj PUBLIC
+"-//AspectJ//DTD//EN" "http://www.eclipse.org/aspectj/dtd/aspectj.dtd">
+
+<!-- options="-verbose -showWeaveInfo -Xset:weaveJavaxPackages=false" -->
+<aspectj>
+     <weaver>
+          <include within="com.*"/>
+     </weaver>
+     <aspects>
+          <aspect name="com.myCompany.MyServletAspect"/>
+     </aspects>
+</aspectj>
+
+Note: the above says that the MyServletAspect will be applied 
+to any classes under the 'com.*' package that matches what its looking for.
+
+* Restart tomcat, call up a browser, run the servlet, and 
+verify the aspect prints 'Hello from doGet (via aspectj)' to the console.
+
+********************* 
+How to deploy it outside of Eclipse on Tomcat with the project as a war file:
+
+* Select the project icon, right click on it, select 
+properties->tomcat->export to war settings:
+and enter this:
+C:\Program Files\Tomcat\Tomcat5.5.27\webapps\AspectjOnTomcatExample.war
+
+
+* Locate under <catalina_home>conf/localhost folder the
+AspectjOnTomcatExamle.xml file with something like the following
+content (Eclipse should have generated it):
+
+<Context path="/AspectjOnTomcatExample" 
+     reloadable="true" 
+     docBase="C:\Program Files\Eclipse\\workspace\AspectjOnTomcatExample" 
+     workDir="C:\Program Files\Eclipse\\workspace\AspectjOnTomcatExample\work" 
+/>
+
+Remove docBase and workDir enteries so Tomcat will look for the code in the war file
+rather than back under Eclipse.
+
+* Restart tomcat, call up a browser, run the servlet, and 
+verify the aspect prints 'Hello from doGet (via aspectj)' to the console.
+
+
+*********************** 
+Notes:
+
+The eclipse plugin took care of converting the project into an aspectj project.
+Therefore, there is no need to alter any of the files under the tomcat folder (such as catalina_home).
+Therefore, there is no need to add the following to the JVM anywhere:
+-javaagent:C:\Program Files\Tomcat\Tomcat5.5.27\common\lib\aspectjweaver.jar
+Therefore, there is no need to add the following jar files to either Eclipse project or 
+to the tomcat (catalina_home) folder:
+     aspectjrt.jar
+     aspectjtools.jar
+     aspectjweaver.jar
+     org.aspectj.matcher
+     spring-tomcat-weaver.jar
+
+Also note: there are other ways to deploy aspectj which is not covered by this document.
+
+
+For Maven Install eclipse pluggin:
+
+1.Go to Help > Install New Software...
+2.Use this software repository: http://dist.springsource.org/release/AJDT/configurator/
+3.Install the AJDT m2e Configurator
+Source: http://blog.springsource.com/2011/10/18/upgrading-maven-integration-for-springsource-tool-suite-2-8-0/#comment-207264 (Andrew Eisenberg)

@@ -19,10 +19,21 @@
     <param-value>/WEB-INF/context/ApplicationContext.xml</param-value>
   </context-param>
   <listener>
-    <listener-class>
-			org.springframework.web.context.ContextLoaderListener
-		</listener-class>
+    <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
   </listener>
+  <context-param>
+		<param-name>log4jConfigLocation</param-name>
+		<param-value>classpath:log4j.properties</param-value>
+	</context-param>
+	
+	<context-param>
+		<param-name>log4jExposeWebAppRoot</param-name>
+		<param-value>false</param-value>
+	</context-param>
+	
+	<listener>
+		<listener-class>org.springframework.web.util.Log4jConfigListener</listener-class>
+	</listener>
   <servlet>
     <description></description>
     <display-name>ExportServlet</display-name>
@@ -32,5 +43,15 @@
   <servlet-mapping>
     <servlet-name>ExportServlet</servlet-name>
     <url-pattern>/exportDoc</url-pattern>
+  </servlet-mapping>
+  <servlet>
+    <description></description>
+    <display-name>AspectServlet</display-name>
+    <servlet-name>AspectServlet</servlet-name>
+    <servlet-class>com.org.modelView.export.model.AspectServlet</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>AspectServlet</servlet-name>
+    <url-pattern>/aspectServlet</url-pattern>
   </servlet-mapping>
 </web-app>

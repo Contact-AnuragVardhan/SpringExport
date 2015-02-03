@@ -38,7 +38,7 @@ public class SampleExportController
 	{
 		ExportDTO export = getExportDTO();
 		
-		List<GridColumnInfo> columns = DataSourceUtil.getColumnListInfo(export.getLstExports());
+		List<GridColumnInfo> columns = DataSourceUtil.getColumnListInfo(export.getLstExports(),export.getColumnsToBeRemoved());
 		List<ExportDataDTO> dataProvider = null;
 		if(export.isHeirarchicalData())
 		{
@@ -90,6 +90,7 @@ public class SampleExportController
         export.setHeaderText("Recommended books for Spring Framework");
         export.setHeirarchicalData(true);
         export.setParentColumn(new GridColumnInfo("isbn","IsBN", 1, 30.0f, 3.0f, false));
+        export.setColumnsToBeRemoved(new String[]{"author"});
         
         LogoDetails logoDetails = new LogoDetails();
 		logoDetails.setPath(this.getClass().getResource("/assets/logo2.png").getPath());
