@@ -1,50 +1,69 @@
-.nsListParentContainer
-{
-    position: relative;   
-    overflow-y: auto;
-}
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<title>List Demo</title>
+<script src="lib/com/org/util/nsImport.js"></script>
 
-.nsListChildContainer
-{
-	position: absolute; 
-	height: 100%; 
-	width: 100%; 
-	margin: 0px; 
-	padding: 0px;
-}
+<style>
+   label {
+  display: block;
+  padding: 5px 5px 5px;
+  
+  background-color: #2175bc;
+  color: #fff;
+  text-decoration: none;
+  } 
+  label:hover {
+  border-left: 10px solid #1c64d1;
+  border-right: 10px solid #5ba3e0;
+  background-color: #2586d7;
+  color: #fff;
+  }
+</style>
 
-.nsListScrollerCause
-{
-	width: 1px; 
-	position: absolute; 
-	margin: 0; 
-	padding: 0;
-}
+</head>
+<body onload="loadHandler();" style="overflow:hidden;">
 
-.nsListContainer
-{
-	position: relative;
-	margin: 0px;
-	padding: 0px;
-	text-align: center;
-}
-
--------------------------------------------------------------------------------------
-ListDemo.jsp
-<ns-List id="lstDemo" labelField="hierarchy" style="height:200px;">
-	</ns-List>
+ 	<nsimport file="nsList.js">
+ 	</nsimport>
 	
-	function loadHandler()
+	<ns-List id="lstDemo" labelField="hierarchy" style="height:200px;">
+	</ns-List>
+	<form>
+	  <input type="text" id="txtSelectedIndex" placeholder="Enter Selected Index" required><br>
+	  <input type="submit" name="Submit" value="Submit" onclick="return setSelectedIndex();"/>
+	</form>
+	<script>	
+				var dataSource = [];
+				document.getElementById('txtSelectedIndex').onkeydown = function(e) 
+				{
+				    var key = e.keyCode ? e.keyCode : e.which;
+				    if ( isNaN( String.fromCharCode(key) ) ) return false;
+				}
+		
+				function loadHandler()
 				{
 					dataSource = [];
-					for (var count = 0 ;count < 100; count++)
+					for (var count = 0 ;count < 400; count++)
 					{
 						var item = {id:count, hierarchy:"Hierarchy " + count};
 						dataSource.push(item);
-						
 					}
 					ns.onload(function(){
 						var lstDemo = document.getElementById("lstDemo");
 						lstDemo.setDataProvider(dataSource);
 					});	
 				}
+				function setSelectedIndex()
+				{
+					var txtSelectedIndex = document.getElementById('txtSelectedIndex'); 
+					var lstDemo = document.getElementById('lstDemo'); 
+					lstDemo.setSelectedIndex(txtSelectedIndex.value);
+					return false;
+				}
+	</script>
+</body>
+</html>
