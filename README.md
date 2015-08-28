@@ -1,25 +1,14 @@
-
-	this.setData = function(renderer,item,labelField)
-	{
-		if(renderer)
-		{
-			if(item && item[labelField])
-			{
-				renderer.rendererBody.rendererLabel.innerHTML = item[labelField];
-				//renderer.rendererBody.rendererLabel.appendChild(document.createTextNode(item[labelField]));
-			}
-			else
-			{
-				this.clearData(renderer);
-			}
-		}
-		
-	};
-	
-	this.clearData = function(renderer)
-	{
-		if(renderer)
-		{
-			renderer.rendererBody.rendererLabel.innerHTML = "";
-		}
-	};
+ var divItemRenderer = this.util.createDiv(null,"hbox"); 
+			 divItemRenderer.setAttribute("accessor-name","rendererBody");
+			 var checkbox = document.createElement("INPUT");
+			 checkbox.setAttribute("type", "checkbox");
+			 checkbox.data = item;
+			 checkbox.setAttribute("onchange","checkBox_changeHandler(this)");
+			 divItemRenderer.appendChild(checkbox);
+		     var lblItemRenderer = document.createElement("LABEL");
+			 lblItemRenderer.setAttribute("accessor-name","label1");
+			 divItemRenderer.appendChild(lblItemRenderer);
+			 var lblItemRenderer2 = document.createElement("LABEL");
+			 lblItemRenderer2.setAttribute("accessor-name","label2");
+			 divItemRenderer.appendChild(lblItemRenderer2);
+			 listItem.appendChild(divItemRenderer);
