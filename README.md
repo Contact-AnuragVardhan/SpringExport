@@ -1,620 +1,1020 @@
-var nsList = Object.create(nsContainerBase);
-
-nsList.initializeComponent = function() 
+function NSUtil()
 {
-	this.base.initializeComponent();
-	this.ITEM_SELECTED = "itemSelected";
-	this.ITEM_UNSELECTED = "itemUnselected";
-	
-	this.__resuableRenderRequired = false;
-	this.__dataProvider = null;
-	this.__labelField = "label";
-	this.__labelFunction = null;
-	this.__templateID = null;
-	this.__itemRenderer = null;
-	this.__setDataCallBack = null;
-	this.__clearDataCallBack = null;
-	this.__currentIndex = -1;
-	this.__selectedIndex = -1;
-	this.__selectedItem = null;
-	this.__allowMultipleSelection = false;
-	this.__selectedItems = new Array();	
-	
-	this.__outerContainer = null;
-	this.__childContainer = null;
-	this.__listContainer = null;
-	
-	
-	this.__availableHeight = 0;
-	this.__scrollHeight = 0;
-	this.__listItemHeight = 0;
-	this.__rowCount = 0;
-	this.__maxRows = 0;
-	this.__visibleRows = 0;
-	this.__hiddenRows = 0;
-	this.__availableRows = 0;
-	this.__topHiddenRows = 0;
-	this.__bottomHiddenRows = 0;
-	this.__maxCount = 0;
-	this.__startArrayElement = -1;
-	this.__scrollOffset = 0;
-	
-	this.__positionX = 0;
-	this.__positionY = 0;
-	this.__changeX = 0;
-	this.__changeY = 0;
+	this.__sheetId = "nsStyle";
 };
 
-nsList.setComponentProperties = function() 
+NSUtil.prototype.getElement = function (elementId)
 {
-	if(this.hasAttribute("resuableRenderRequired"))
+	if(elementId && elementId.length > 0)
 	{
-		this.__resuableRenderRequired =  Boolean.parse(this.getAttribute("resuableRenderRequired"));
+		return document.getElementById(elementId);
 	}
-	if(this.hasAttribute("labelField"))
-	{
-		this.__labelField = this.getAttribute("labelField");
-	}
-	if(this.hasAttribute("labelFunction"))
-	{
-		this.__labelFunction = this.getAttribute("labelFunction");
-	}
-	if(this.hasAttribute("template"))
-	{
-		this.__templateID = this.getAttribute("template");
-	}
-	if(this.hasAttribute("setDataCallBack"))
-	{
-		this.__setDataCallBack = this.getAttribute("setDataCallBack");
-	}
-	if(this.hasAttribute("clearDataCallBack"))
-	{
-		this.__clearDataCallBack  = this.getAttribute("clearDataCallBack");
-	}
-	if(this.hasAttribute("allowMultipleSelection"))
-	{
-		this.__allowMultipleSelection =  Boolean.parse(this.getAttribute("allowMultipleSelection"));
-	}
-	this.__setTemplate();
-	this.base.setComponentProperties();
+	return null;
 };
 
-nsList.setDataProvider = function(dataProvider)
+NSUtil.prototype.createDiv = function (id,styleName)
 {
-	this.__dataProvider = dataProvider;
-	if(this.__dataProvider && this.__dataProvider.length > 0)
+    var div = document.createElement("div");
+    if(id)
+    {
+    	div.setAttribute("id",id);
+    }
+    if(styleName)
+    {
+        div.className = styleName;   
+    }
+    return div;
+};
+
+NSUtil.prototype.setDivVisibility = function (id,isVisible)
+{
+    var div = document.getElementById(id);
+    if(div)
+    {
+        if(isVisible)
+        {
+            div.style.display = "block";
+        }
+        else
+        {
+            div.style.display = "none";
+        }
+    }
+};
+
+NSUtil.prototype.removeDiv = function (id)
+{
+    var div = document.getElementById(id);
+    if (div)
+    {
+        var parent = div.parentNode;
+        if(parent)
+        {
+            parent.removeChild(div);
+        }
+    }
+};
+
+/*Utility Methods */
+NSUtil.prototype.getKeys = function (object) 
+{
+    var keys = [];
+    for (var property in object)
+    {
+    	keys.push(property);
+    }
+    return keys;
+};
+
+NSUtil.prototype.getValues = function (object)
+{
+	var values = [];
+	for (var property in object)
 	{
-		this.__calculateComponentParameters();
-		this.__createComponents();
-		if(this.__resuableRenderRequired)
+		values.push(object[property]);
+	}
+	return values;
+};
+   
+NSUtil.prototype.clone = function (object) 
+{
+    return Object.extend({ }, object);
+}
+;
+NSUtil.prototype.isElement = function (refElement)
+{
+    return !!(refElement && refElement.nodeType == 1);
+};
+
+NSUtil.prototype.isArray = function (refArr) 
+{
+    return refArr != null && typeof refArr == "object" &&
+      "splice" in refArr && "join" in refArr;
+};
+
+NSUtil.prototype.isVariable = function (variableName) 
+{
+	return !this.isUndefined(window[variableName]); 
+};
+
+NSUtil.prototype.callFunction = function (functionName) 
+{
+	var returnValue = null;
+	if (typeof window[functionName] === "function") 
+	{
+		returnValue = window[functionName]();
+	}
+	return returnValue;
+};
+
+NSUtil.prototype.callFunctionFromString = function (functionString,replaceParameterFunction)
+{
+	var returnValue = null;
+	if(functionString)
+	{
+		var functionName = null;
+		var arrParameter = null;
+		if(functionString.indexOf("(") > -1)
 		{
-			this.__createReusableRendererComponents();
-			this.__bindRenderers();
-			this.__calculateDimensions();
-			this.__renderList(0);
-			this.__setPosition(0,0);
-		}
-	}
-};
-
-nsList.setSelectedIndex = function(selectedIndex,animationRequired)
-{
-	if(selectedIndex > -1 && this.__dataProvider && selectedIndex < this.__dataProvider.length)
-	{
-		if(this.__resuableRenderRequired)
-		{
-			var targetDimension = parseInt(selectedIndex) * this.__listItemHeight;
-			if(animationRequired)
+			var param = functionString.split("(");
+			if(param && param.length > 0)
 			{
-				var animation = new this.util.animation(this.__outerContainer,[
-	       	  	    {
-	       	  	      time: 1,
-	       	  	      property:"scrollTop",
-	       	  	      target: targetDimension,
-	       	  	    }
-	       	  	]);
-       	  	  	animation.animate();
+				functionName = param[0];
+				var parameter = param[1];
+				if(parameter && parameter.charAt(parameter.length - 1) === ")")
+				{
+					parameter = parameter.substring(0,parameter.length - 1);
+					var arrParam = parameter.split(",");
+					if(arrParam && arrParam.length > 0)
+					{
+						arrParameter = arrParam;
+					}
+				}
+			}
+		}
+		else
+		{
+			functionName = functionString;
+		}
+		if(this.isFunction(functionName))
+		{
+			if(!arrParameter || arrParameter.length === 0)
+			{
+				returnValue = this.callFunction(functionName);
 			}
 			else
 			{
-				this.__outerContainer.scrollTop = targetDimension;
+				if(replaceParameterFunction)
+				{
+					for(var count = 0;count < arrParameter.length;count++)
+					{
+						 var newValue = replaceParameterFunction(arrParameter[count]);
+						 if(!this.isUndefined(newValue))
+						 {
+							 arrParameter[count] = newValue;
+						 }
+					}	
+				}
+				switch (arrParameter.length) 
+				{
+				    case 1:
+				    	returnValue = window[functionName](arrParameter[0]);
+				        break;
+				    case 2:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1]);
+				        break;
+				    case 3:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2]);
+				        break;
+				    case 4:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2],arrParameter[3]);
+				        break;
+				    case 5:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2],arrParameter[3],arrParameter[4]);
+				        break;
+				    case 6:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2],arrParameter[3],arrParameter[4],arrParameter[5]);
+				        break;
+				    case 7:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2],arrParameter[3],arrParameter[4],arrParameter[5],arrParameter[6]);
+				        break;
+				    case 8:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2],arrParameter[3],arrParameter[4],arrParameter[5],arrParameter[6],arrParameter[7]);
+				        break;
+				    case 9:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2],arrParameter[3],arrParameter[4],arrParameter[5],arrParameter[6],arrParameter[7],arrParameter[8]);
+				        break;
+				    case 10:
+				    	returnValue = window[functionName](arrParameter[0],arrParameter[1],arrParameter[2],arrParameter[3],arrParameter[4],arrParameter[5],arrParameter[6],arrParameter[7],arrParameter[8],arrParameter[9]);
+				        break;
+				}
 			}
 		}
 	}
+	return returnValue;
 };
 
-nsList.getSelectedIndex = function()
+NSUtil.prototype.isFunction = function (refFunction) 
 {
-	return this.__selectedIndex;
-};
-
-nsList.getSelectedItem = function()
-{
-	return this.__selectedItem;
-};
-
-
-
-nsList.deselectAll = function()
-{
-	if(this.__listContainer && this.__listContainer.children && this.__listContainer.children.length > 0)
-	{
-		for(var count = 0; count < this.__listContainer.children.length; count++) 
-		{
-			var item = this.__listContainer.children[count];
-			this.util.removeStyleClass(item,"itemHover");
-			if(this.util.hasStyleClass(item,"selected"))
-			{
-				this.util.removeStyleClass(item,"selected");
-				this.util.dispatchEvent(this,this.ITEM_UNSELECTED,item.data);
-			}
-			
-		}
-	}
-};
-
-nsList.__setTemplate = function()
-{
-	if(this.__templateID)
-	{
-		this.__itemRenderer = this.util.getTemplate(this.__templateID);
-	}
-	else
-	{
-		var renderer = new this.util.defaultRenderer();
-		this.__itemRenderer = renderer.getRenderer();
-		this.__setDataCallBack = renderer.setData;
-		this.__clearDataCallBack = renderer.clearData;
-	}
-};
-
-nsList.__createComponents = function()
-{
-	if(!this.__outerContainer)
-	{
-		this.__outerContainer = this.util.createDiv(this.getID() + "#container","nsListParentContainer");
-		this.__outerContainer.style.height = this.__availableHeight + "px";
-		this.addChild(this.__outerContainer);
-		this.__childContainer = this.util.createDiv(this.getID() + "#childContainer","nsListChildContainer");
-		this.__outerContainer.appendChild(this.__childContainer);
-		this.__listContainer = document.createElement("ul");
-		this.util.addStyleClass(this.__listContainer,"nsListContainer");
-		this.__childContainer.appendChild(this.__listContainer);
-	}
-};
-
-nsList.__createReusableRendererComponents = function()
-{
-	if(this.__outerContainer)
-	{
-		var divHeight = this.util.createDiv(null,"nsListScrollerCause");
-		divHeight.style.maxHeight = this.__scrollHeight + "px";
-		divHeight.style.height = this.__scrollHeight + "px";
-		this.__outerContainer.appendChild(divHeight);
-		for(var count = 0; count <= this.__rowCount; count++) 
-		{
-			 var listItem = document.createElement("li");
-			 this.util.addStyleClass(listItem,"nsListItem");
-			 listItem.style.height = this.__listItemHeight + "px";
-			 this.util.addEvent(listItem,"click",this.__itemClickHandler.reference(this));
-			 this.util.addEvent(listItem,"mouseover",this.__itemMouseOverHandler.reference(this));
-		     this.util.addEvent(listItem,"mouseout",this.__itemMouseOutHandler.reference(this));
-			 this.__listContainer.appendChild(listItem);
-		}
-		this.util.addEvent(this.__outerContainer,"scroll",this.__scrollHandler.reference(this));
-	}
-};
-
-nsList.__itemClickHandler = function(event)
-{
-	 this.deselectAll();
-	 var target = this.util.getTarget(event);
-     target = this.util.findParent(target,"li");
-     if(target)
-     {
-    	 this.util.removeStyleClass(target,"itemHover");
-    	 if(target.index > -1)
-    	 {
-    		 this.__selectedIndex = target.index;
-    		 this.__selectedItem = target.data;
-    		 this.__markRowSelected(target);
-    	 }
-     }
-};
-
-nsList.__itemMouseOverHandler = function(event)
-{
-	 var target = this.util.getTarget(event);
-     target = this.util.findParent(target,"li");
-     if(target && target.index > -1)
-     {
-    	 this.util.addStyleClass(target,"itemHover");
-     }
-};
-
-nsList.__itemMouseOutHandler = function(event)
-{
-	 var target = this.util.getTarget(event);
-     target = this.util.findParent(target,"li");
-     if(target)
-     {
-    	 this.util.removeStyleClass(target,"itemHover");
-     }
-};
-
-nsList.__isRowSelected= function(row)
-{
-    if(row)
+    if(refFunction && ((typeof refFunction == "function") || (typeof window[refFunction] === "function")))
     {
-        return this.util.hasStyleClass(row,"selected");
-    }   
+    	return true;
+    }
     return false;
 };
 
-nsList.__markRowSelected= function(row)
+NSUtil.prototype.isString = function (object) 
 {
-    if(row)
-    {
-        if(!this.__isRowSelected(row))
-        {
-        	this.util.addStyleClass(row,"selected");   
-            this.__selectedItems.push(row);
-            this.util.dispatchEvent(this,this.ITEM_SELECTED,row.data);
-            console.log("Selected Index is ::" + row.index);
-        }
-    }
+    return typeof object == "string";
 };
 
-nsList.__markRowUnselected= function(row)
+NSUtil.prototype.isNumber = function (object) 
 {
-    if(this.__isRowSelected(row))
+    return typeof object == "number";
+};
+  
+NSUtil.prototype.isUndefined = function (object) 
+{
+    return typeof object == "undefined";
+};
+
+/*
+ * 1001 - function validation failure
+ */
+NSUtil.prototype.throwException = function (exceptionCode,exceptionName,exceptionDetails)
+{
+    //alert("Error Occured with details code: " + exceptionCode + ",name: " + exceptionName + ",details: " + exceptionDetails);
+    throw{code: exceptionCode,name: exceptionName,details: exceptionDetails};
+};
+
+//other values of navigator.appName is "Netscape","Opera"
+//From IE 11 navigator.appName returns "Netscape" instead of "Microsoft Internet Explorer"
+//and From IE 11 it follows standard API.
+NSUtil.prototype.isBrowserIE = function ()
+{
+    if(navigator && navigator.appName && navigator.appName == "Microsoft Internet Explorer")
     {
-    	this.util.removeStyleClass(row,"selected");
-    	var isUnselected = false;
-        for (var count=0; count < this.__selectedItems.length ; count++)
+        return true;
+    }
+    return false;
+};
+
+//navigates to the DOM Heirarchy to find the nearest parent of the specified HTML tag 
+NSUtil.prototype.findParent = function (element,parentTag)
+{
+    if(element && parentTag)
+    {
+        while (element && element.tagName && element.tagName.toLowerCase()!=parentTag.toLowerCase())
         {
-            if (this.__selectedItems[count].index === row.index)
+            element = element.parentNode;
+        }
+    }  
+    return element;
+};
+//returns the top y coordinate of the given div used while listening to scrolling events(vertical scrolling)
+NSUtil.prototype.scrollTop = function (div)
+{
+	 if(div)
+	 {
+	    return (div.scrollHeight - div.clientHeight);
+	 }
+};
+
+//returns the top x coordinate of the given div used while listening to scrolling events(horizontal scrolling)
+NSUtil.prototype.scrollLeft = function (div)
+{
+	 if(div)
+	 {
+		 return (div.scrollWidth - div.clientWidth);
+	 }
+};
+
+//adds Style class to an element's styles list 
+NSUtil.prototype.addStyleClass = function (divAlert,styleClass)
+{
+    if(divAlert && styleClass && styleClass.length > 0)
+    {
+        if(document.body.classList)
+        {
+            if(!this.hasStyleClass(divAlert,styleClass))
             {
-                this.__selectedItems.splice(count,1);
-                isUnselected = true;
-                break;
+                divAlert.className += " " + styleClass;
             }
         }
-        if(isUnselected)
+        else
         {
-        	 this.util.dispatchEvent(this,this.ITEM_UNSELECTED,row.data);
+            if(!this.hasStyleClass(divAlert,styleClass))
+            {
+                divAlert.classList.add(styleClass);
+            }
         }
     }
 };
 
-nsList.__clearAllRowSelection= function()
+//returns true if a Style class is present in element's styles list
+NSUtil.prototype.hasStyleClass = function (divAlert,styleClass)
 {
-    for (var count=0; count < this.__selectedItems.length ; count++)
+    if(divAlert && styleClass && styleClass.length > 0)
     {
-        if (this.__selectedItems[count])
+    	try
+    	{
+    		if(document.body.classList)
+            {
+                return (divAlert.className.indexOf(" " + styleClass) > -1);
+            }
+            else if(divAlert.classList.contains)
+            {
+                return divAlert.classList.contains(styleClass);
+            }
+    	}
+    	catch(error)
+    	{
+    		
+    	}
+        
+    }
+    return false;
+};
+
+//removes Style class from an element's styles list
+NSUtil.prototype.removeStyleClass = function (divAlert,styleClass)
+{
+    if(divAlert && styleClass && styleClass.length > 0)
+    {
+        if(document.body.classList)
         {
-        	this.util.removeStyleClass(this.__selectedItems[count],"selected");
+            if(divAlert.className)
+            {
+                divAlert.className = divAlert.className.replace(" " + styleClass,"");
+            }
+        }
+        else
+        {
+            divAlert.classList.remove(styleClass);
         }
     }
-    this.__selectedItems = new Array();
 };
 
-nsList.__multiSectionHandler= function(lastRow)
+//change Style class from an element's styles list
+NSUtil.prototype.changeStyleClass = function (divAlert,oldStyleClass,newStyleClass)
 {
-	 if(!lastRow)
+    if(divAlert && oldStyleClass && oldStyleClass.length > 0 && newStyleClass && newStyleClass.length > 0)
+    {
+        if(divAlert.classList)
+        {
+            if(divAlert.className)
+            {
+                divAlert.className = divAlert.className.replace(oldStyleClass,newStyleClass);
+            }
+        }
+        else
+        {
+            divAlert.classList.remove(oldStyleClass);
+            if(!divAlert.classList.contains(newStyleClass))
+            {
+                divAlert.classList.add(newStyleClass);
+            }
+        }
+    }
+};
+
+NSUtil.prototype.addEvent = function(element, eventType, listener)
+{
+	 var retValue = false;
+	 if (element.addEventListener)
 	 {
-		 return;
-	 }
-	 if (this.__selectedItems.length === 0)
+		 element.addEventListener(eventType, listener);
+		 retValue = true;
+	 } 
+	 else if (element.attachEvent)
 	 {
-		 this.__isRowSelected(lastRow);
-	     return;
-	 }
-	 var firstRow = this.__selectedItems[this.__selectedItems.length - 1];
-	 if(lastRow.index === firstRow.index)
+	    retValue = element.attachEvent("on" + eventType, listener);
+	 } 
+	 else 
 	 {
-		 this.__markRowUnselected(lastRow);
-		 return;
+	    retValue = false;
 	 }
-	 var isDown = lastRow.index > firstRow.index;
-	 var isSelection = !this.__isRowSelected(lastRow);
-	 var navigateRow = firstRow;
-	 do
+};
+
+NSUtil.prototype.removeEvent = function(element, eventType, listener)
+{
+	 var retValue = false;
+	 var bindedFunction = listener;
+	 if(listener && listener.bindedFunction)
 	 {
-		  navigateRow = isDown ? navigateRow.nextSibling : navigateRow.previousSibling;
-		  if (isSelection)
-		  {
-			  this.__markRowSelected(navigateRow);
-		  }
-		  else
-		  {
-			  this.__markRowUnselected(navigateRow);
-		  }
+		 bindedFunction = listener.bindedFunction;
+		 listener.bindedFunction = null;
 	 }
-	 while(navigateRow.index != lastRow.index);
+	 if (element.removeEventListener)
+	 {
+		 element.removeEventListener(eventType, bindedFunction);
+		 retValue = true;
+	 } 
+	 else if (element.detachEvent)
+	 {
+	    retValue = element.detachEvent("on" + eventType, bindedFunction);
+	 } 
+	 else 
+	 {
+	    retValue = false;
+	 }
+	 
+	 return retValue;
+};
+
+NSUtil.prototype.dispatchEvent = function(element, eventType, data)
+{
+	 var event = null;
+	 if (document.createEvent) 
+	 {
+	    event = document.createEvent("HTMLEvents",{ "detail": data});
+	    event.initEvent(eventType, true, true);
+	 } 
+	 else 
+	 {
+	    event = document.createEventObject();
+	    event.eventType = eventType;
+	 }
+	 event.eventName = eventType;
+	 event.detail = data;
+	 if (document.createEvent) 
+	 {
+	    element.dispatchEvent(event);
+	 } 
+	 else 
+	 {
+	    element.fireEvent("on" + event.eventType, event);
+	 }
+};
+
+//returns event for all kind of browser
+NSUtil.prototype.getEvent = function (event)
+{
+	// IE is evil and doesn't pass the event object
+	if (!event)
+	{
+		event = window.event;
+	}
+	return event;
+};
+
+//returns target for all kind of browser
+NSUtil.prototype.getTarget = function (event)
+{
+	// we assume we have a standards compliant browser, but check if we have IE
+	event = this.getEvent(event);
+	var target = event.target ? event.target : event.srcElement;
+	return target;
 };
 
 
-nsList.__calculateComponentParameters = function()
+//copied from http://www.broofa.com/Tools/Math.uuid.js
+NSUtil.prototype.getUniqueId = function () 
 {
-	if(this.hasAttribute("nsHeight"))
-	{
-		this.__availableHeight = this.util.getDimensionAsNumber(this,this.getAttribute("nsHeight"));
-	}
-	else if(this.style.height != "")
-	{
-		this.__availableHeight  = this.util.getDimensionAsNumber(this,this.style.height);
-	}
-	else
-	{
-		this.__availableHeight  = this.offsetHeight;
-	}
-	var tempRenderer = this.__itemRenderer.cloneNode(true);
-	tempRenderer.removeAttribute("id");
-	this.addChild(tempRenderer);
-	this.__listItemHeight = tempRenderer.offsetHeight;
-	this.__rowCount = Math.round(this.__availableHeight/this.__listItemHeight) * 2;
-	this.__scrollHeight = ((this.__dataProvider.length) * this.__listItemHeight);
-	this.deleteChild(tempRenderer);
-};
+    var chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".split("");
+    var uuid = new Array(36);
+    var rnd=0;
+    var r;
+    
+    for (var count = 0; count < 36; count++) 
+    {
+      if (count==8 || count==13 ||  count==18 || count==23) 
+      {
+        uuid[count] = '-';
+      } 
+      else if (count==14) 
+      {
+        uuid[count] = '4';
+      } 
+      else 
+      {
+        if (rnd <= 0x02) 
+        {
+        	rnd = 0x2000000 + (Math.random()*0x1000000) | 0;
+        }
+        r = rnd & 0xf;
+        rnd = rnd >> 4;
+        uuid[count] = chars[(count == 19) ? (r & 0x3) | 0x8 : r];
+      }
+    }
+    return uuid.join('');
+ };
+ 
+ NSUtil.prototype.addShadowStyle = function (control,className,property,cssClassName,checkClassCallBack)
+ {
+ 	var styleProperties = this.getCSSClass(cssClassName);
+ 	if(checkClassCallBack)
+ 	{
+ 		styleProperties = checkClassCallBack(styleProperties);
+ 	}
+ 	var _head = document.head || document.getElementsByTagName('head')[0];
+ 	var _sheet = document.getElementById(this.__sheetId) || document.createElement('style');
+ 	_sheet.id = this.__sheetId;
+ 	control.className +=  " " + className; 
+ 	_sheet.innerHTML += "\n." + className + ":" + property + "{" +styleProperties + "}";
+ 	_head.appendChild(_sheet);
+ };
 
-nsList.__calculateDimensions = function()
-{
-	if(this.__listContainer.children)
+ NSUtil.prototype.getCSSClass = function (cssClassName)
+ {
+     if(!document.styleSheets) 
+ 	{
+ 		return "";
+ 	}
+ 	var regEx = null;
+ 	var styleSheets = document.styleSheets;
+ 	var counter = styleSheets.length;
+ 	var result = [];
+     if(typeof cssClassName == "string") 
+ 	{
+ 		regEx = RegExp('\\b' + cssClassName + '\\b','i');
+ 	}
+     while(counter)
+ 	{
+     	var currentSheet = styleSheets[--counter];
+     	var cssRules = (currentSheet.rules) ? currentSheet.rules: currentSheet.cssRules;
+ 		var cssRulesLength = cssRules.length;
+     	for(var count = 0 ; count < cssRulesLength; count++)
+ 		{
+     		var tempClassDetails = cssRules[count].selectorText ? [cssRules[count].selectorText, cssRules[count].style.cssText]: [cssRules[count]+''];
+     		if(regEx.test(tempClassDetails[0])) 
+ 			{
+ 				result[result.length]= tempClassDetails;
+ 			}
+     	}
+     }
+ 	if(result && result.length === 1 && result[0] && result[0].length > 1)
+ 	{
+ 		return result[0][1];
+ 	}
+     return result.join('\n\n');
+ };
+ 
+ NSUtil.prototype.throwNSError = function(componentName,message)
+ {
+ 	throw new Error("Error in " + componentName + " with details::" + message);
+ };
+ 
+ //gets the offset of the element 
+ NSUtil.prototype.getOffSet = function(element, offset) 
+ {
+	if(element)
+    {
+		offset.left += element.offsetLeft;
+	    offset.top += element.offsetTop;
+	    this.getOffSet(element.offsetParent, offset);
+    }
+ };
+ 
+ NSUtil.prototype.addTemplateInContainer = function(container,templateID) 
+ {
+	 if(container && templateID)
+	 {
+		 var templateClone = this.getTemplate(templateID);
+		 if(templateClone)
+		 {
+			 container.appendChild(templateClone);
+		 }
+	 }
+ };
+ 
+ NSUtil.prototype.getTemplate = function(templateID) 
+ {
+	 var templateClone = null;
+	 if(templateID)
+	 {
+		 var template = document.getElementById(templateID);
+		 if(template)
+		 {
+			 if(this.supportsTemplate())
+			 {
+				 templateClone = template.content.children[0]; //document.importNode(template.content, true); 
+			 }
+			 else
+			 {
+				 templateClone = template.cloneNode(true);
+				 template.style.display = "none";
+			 }
+		 }
+	 }
+	 return templateClone;
+ };
+ 
+ NSUtil.prototype.supportsTemplate = function(element, offset) 
+ {
+	 return ("content" in document.createElement('template'));
+ };
+ 
+ NSUtil.prototype.removeAllChildren = function(element) 
+ {
+	if(element)
 	{
-		this.__maxRows = (this.__listContainer.offsetHeight - this.__availableHeight) / this.__listItemHeight;
-		this.__availableRows = this.__listContainer.children.length;
-		this.__visibleRows = (this.__availableHeight / this.__listItemHeight);
-		this.__hiddenRows = this.__availableRows - this.__visibleRows;
-		this.__topHiddenRows = Math.floor(this.__hiddenRows / 2);
-		this.__bottomHiddenRows = this.__topHiddenRows + (this.__hiddenRows % 2);
-		this.__maxCount = Math.max(0,this.__dataProvider.length - this.__visibleRows);
-		for(var count = 0; count < this.__listContainer.children.length; count++) 
-		{
-			this.__listContainer.children[count].originalOrder = count;
-		}
-	}
-};
+		var node = element;
+	    while (element.hasChildNodes()) 
+	    {              
 
-nsList.__renderList = function(value)
+	        if (node.hasChildNodes()) 
+	        {                
+	            node = node.lastChild;                 
+	        }
+	        else 
+	        {                                     
+	            node = node.parentNode;                
+	            node.removeChild(node.lastChild);      
+	        }
+	    }
+	}
+ };
+ 
+ NSUtil.prototype.getScrollBarWidth = function(element)
+ {
+ 	var scrollBarWidth = 0;
+ 	if(element)
+ 	{
+ 		scrollBarWidth = element.offsetWidth - element.clientWidth;
+ 	}
+ 	else
+ 	{
+ 		var divScroll = this.createDiv(null,"nsGetScrollBar");
+        document.body.appendChild(divScroll);
+        scrollBarWidth = divScroll.offsetWidth - divScroll.clientWidth;
+        document.body.removeChild(divScroll);
+ 	}
+ 	
+ 	return scrollBarWidth;
+ };
+ 
+ NSUtil.prototype.getKeyUnicode = function(event) 
+ {
+	 event = this.getEvent(event);
+     var unicode=event.keyCode ? event.keyCode : event.charCode;
+     return unicode;
+ };
+
+ NSUtil.prototype.getDimensionAsNumber = function(element,dimension)
+ {
+ 	var retValue = 0;
+ 	if(element && dimension)
+ 	{
+ 		if(dimension.substring(dimension.length - 1) == "%")
+ 		{
+ 			dimension = dimension.substring(0,dimension.length - 1);
+ 			retValue = (dimension / 100) * element.parent.offsetHeight;
+ 		}
+ 		else if(dimension.substring(dimension.length - 2) == "px")
+ 		{
+ 			retValue = dimension.substring(0,dimension.length - 2);
+ 		}
+ 		else
+ 		{
+ 			retValue = dimension;
+ 		}
+ 	}
+ 	if(isNaN(retValue))
+ 	{
+ 		retValue = 0;
+ 	}
+ 	return parseInt(retValue);
+ };
+ 
+ NSUtil.prototype.getCumulativeOffset = function(element)
+ {
+     var x = 0;
+     var y = 0;
+     var currentElement = (element) ? element : this;
+     do
+     {
+         if (currentElement.nodeName.toLowerCase != 'td')
+         {
+             x += currentElement.offsetLeft;
+             y += currentElement.offsetTop;
+         }
+     }
+     while ((currentElement = currentElement.offsetParent) && currentElement.nodeName.toLowerCase() != 'body');   
+  
+     return { x: x, y: y };
+ };
+ 
+ NSUtil.prototype.makeElementUnselectable = function(element,makeChildrenUnselectable)
+ {
+	 if(element)
+	 {
+		 if (element.nodeType == 1) 
+	     {
+			 element.setAttribute("unselectable", "on");
+	     }
+		 if(makeChildrenUnselectable)
+		 {
+			 var childElement = element.firstChild;
+		     while (childElement) 
+		     {
+		    	 this.makeElementUnselectable(childElement,makeChildrenUnselectable);
+		         childElement = childElement.nextSibling;
+		     }
+		 }
+	 }
+ };
+
+ var falseExpression = /^(?:f(?:alse)?|no?|0+)$/i;
+ Boolean.parse = function(value) 
+ { 
+    return !falseExpression.test(value) && !!value;
+ };
+
+//Defining the indexOf function (before you call it!) if it doesnï¿½t exist ï¿½ taken from MDN (for Internet Explorer 8 and below)
+if (!Array.prototype.indexOf)
 {
-	var currentIndex = this.__currentIndex;
-	if(value < 0)
-	{
-		value = 0;
-	}
-	else if(value > this.__maxCount)
-	{
-		value = this.__maxCount;
-	}
+   Array.prototype.indexOf = function (searchElement /*, fromIndex */ )
+   {
+     'use strict';
+     if (this == null)
+     {
+       throw new TypeError();
+     }
+     var n, k, t = Object(this),
+         len = t.length >>> 0;
+     if (len === 0)
+     {
+       return -1;
+     }
+     n = 0;
+     if (arguments.length > 1) 
+     {
+       n = Number(arguments[1]);
+       if (n != n)
+       { // shortcut for verifying if it's NaN
+         n = 0;
+       }
+       else if (n != 0 && n != Infinity && n != -Infinity)
+       {
+         n = (n > 0 || -1) * Math.floor(Math.abs(n));
+       }
+     }
+     if (n >= len)
+     {
+       return -1;
+     }
+     for (k = n >= 0 ? n : Math.max(len - Math.abs(n), 0); k < len; k++)
+     {
+       if (k in t && t[k] === searchElement)
+       {
+         return k;
+       }
+     }
+     return -1;
+   };
+}
+
+//Added to get over the limitation of removeEventListener not working when we bind the listener
+if (!Function.prototype.reference) 
+{
+	  Function.prototype.reference = function(ref) 
+	  {
+		  this.bindedFunction = this.bind(ref);
+	      return this.bindedFunction;
+	  };
+}
+
+NSUtil.prototype.defaultRenderer = function()
+{
+	this.util = new NSUtil();
+	this.divItemRenderer = null;
 	
-	if(this.__currentIndex != value)
+	this.getRenderer = function()
 	{
-		this.__currentIndex = value;
-		currentIndex = value;
-		var topOffset = 0;
-		var minBottomRows = Math.min(this.__bottomHiddenRows,this.__maxCount - this.__currentIndex);
-		var minTopRows = Math.min(this.__currentIndex,this.__topHiddenRows);
-		topOffset = this.__listContainer.children[0].originalOrder;
-		var rowsOnTop = (this.__currentIndex - topOffset % this.__availableRows) % this.__availableRows;
-		var rowsOnBottom = this.__availableRows - this.__visibleRows - rowsOnTop;
-		var toMove = 0;
-		if(this.__currentIndex > currentIndex)
+		if(!this.divItemRenderer)
 		{
-			minTopRows--;
+			this.__createComponents();
 		}
-		else if(this.__currentIndex < currentIndex)
+		return this.divItemRenderer;
+	};
+	
+	this.setData = function(renderer,item,labelField)
+	{
+		if(renderer)
 		{
-			minBottomRows--;
-		}
-		while(rowsOnBottom < minBottomRows)
-		{
-			toMove = this.__listContainer.children[0];
-			this.__listContainer.removeChild(toMove);
-			this.__listContainer.appendChild(toMove);
-			rowsOnBottom++;
-			rowsOnTop--;
+			if(item && item[labelField])
+			{
+				renderer.rendererBody.rendererLabel.innerHTML = item[labelField];
+				//renderer.rendererBody.rendererLabel.appendChild(document.createTextNode(item[labelField]));
+			}
+			else
+			{
+				this.clearData(renderer);
+			}
 		}
 		
-		while(rowsOnTop < minTopRows) 
+	};
+	
+	this.clearData = function(renderer)
+	{
+		if(renderer)
 		{
-			toMove = this.__listContainer.children[this.__listContainer.children.length - 1];
-			this.__listContainer.removeChild(toMove);
-			this.__listContainer.insertBefore(toMove,this.__listContainer.children[0]);
-			rowsOnTop++;
-			rowsOnBottom--;
+			renderer.rendererBody.rendererLabel.innerHTML = "";
 		}
-		rowsOnTop = this.__availableRows - this.__visibleRows - rowsOnBottom; 
-		if(rowsOnTop < 0)
+	};
+	
+	this.__createComponents = function()
+	{
+		this.divItemRenderer = this.util.createDiv(null,"imageHolder"); 
+		this.divItemRenderer.style.height = 20 + "px";
+		this.divItemRenderer.style.padding = 4 + "px";
+		this.divItemRenderer.setAttribute("accessor-name","rendererBody"); 
+		var lblItemRenderer = document.createElement("LABEL");
+		lblItemRenderer.setAttribute("accessor-name","rendererLabel");
+		this.divItemRenderer.appendChild(lblItemRenderer);
+	};
+};
+
+/** Expalination http://javascript.info/tutorial/animation of animation .. not the code **/
+NSUtil.prototype.animation = function(element,arrOptions)
+{
+	this.__element = element;
+	this.__arrOptions = arrOptions;
+	this.__util = new NSUtil();
+	
+	this.DELAY = 10;
+	
+	this.__duration = 0;
+	this.__currentOption = null;
+	this.__currentStart = 0;
+	this.__currentEnd = 0;
+	
+	this.animate = function()
+	{
+		this.__run();
+	};
+	
+	this.__requestAnimationFrame = (function()
+	{
+		  return  window.requestAnimationFrame       ||
+		          window.webkitRequestAnimationFrame ||
+		          window.mozRequestAnimationFrame    ||
+		          window.oRequestAnimationFrame      ||
+		          function(callback)
+		          {
+		              window.setTimeout(callback,this.DELAY);
+		          };
+	})();
+	
+	this.__run = function() 
+	{
+	    var current = +new Date();
+	    var remaining = this.__currentEnd - current;
+	    if(remaining < this.DELAY) 
+	    {
+		      if(this.__currentOption) 
+		      {
+		    	  this.__step(1);  //1 = progress is at 100%
+		    	  if(this.__currentOption.animationCompleteHandler)
+		    	  {
+		    		  this.__currentOption.animationCompleteHandler(this.__currentOption);
+		    	  }
+		      }
+		      this.__currentOption = this.__arrOptions.shift();  //get the next item
+		      if(this.__currentOption) 
+		      {
+		    	  if(this.__currentOption["style"])
+		    	  {
+		    		  this.__currentStart = this.__util.getDimensionAsNumber(this.__element,this.__element.style[this.__currentOption.style]);
+		    	  }
+		    	  else
+		    	  {
+		    		  this.__currentStart = this.__element[this.__currentOption.property];
+		    	  }
+		    	  this.__duration = this.__currentOption.time * 1000;
+		    	  this.__currentEnd = current + this.__duration;
+		    	  this.__step(0);  //0 = progress is at 0%
+		      }
+		      else 
+		      {
+		        return;
+		      }
+	    }
+	    else 
+	    {
+		      var progress = remaining / this.__duration;
+		      var delta = this.__delta(progress);
+		      this.__step(delta);
+	    }
+	    this.__requestAnimationFrame.bind(window)(this.__run.bind(this));
+	};
+	
+	this.__delta = function(progress)
+	{
+		return (1 - Math.pow(progress, 3));  //easing formula
+	};
+	
+	this.__step = function(progress) 
+	{
+		var newValue = progress * (this.__currentOption.target - this.__currentStart) + this.__currentStart;
+		if(this.__currentOption["style"])
+  	  	{
+			this.__element.style[this.__currentOption.style] = newValue + "px";
+			//this.__element.style[this.__currentOption.style] = (progress * this.__currentOption.target) + "px";
+  	  	}
+		else
 		{
-			rowsOnTop = 0;
+			this.__element[this.__currentOption.property] = newValue;
 		}
-		topOffset = Math.max(0,Math.floor(this.__currentIndex - rowsOnTop));
-       	var start = Math.ceil(this.__currentIndex) - Math.ceil(rowsOnTop);
-		if(start != this.__startArrayElement)
-		{
-			var end = start + this.__availableRows;
-			if(start < 0)
-			{
-				start = 0;
-			}
-			
-			if(end > this.__dataProvider.length)
-			{
-				end = this.__dataProvider.length;
-			}
-			var visibleData = this.__dataProvider.slice(start, end);
-			var domElement = null;
-			var dataItem = null;
-			for(var count = 0; count < visibleData.length; count++) 
-			{
-				if(this.__listContainer.children[count].data != visibleData[count]) 
-				{
-					dataItem = visibleData[count];
-					domElement = this.__listContainer.children[count];
-					domElement.index = start + count;
-					this.__setRendererInData(domElement,dataItem);
-					//IE bug
-					domElement.data = dataItem;
-					if(this.util.isFunction(this.__setDataCallBack))
-		            {
-						var list = this;
-		            	if(this.util.isString(this.__setDataCallBack))
-		            	{
-		            		this.util.callFunctionFromString(this.__setDataCallBack + "(domElement,dataItem,labelField)",function(paramValue){
-		        				if(paramValue === "domElement")
-		        				{
-		        					return domElement;
-		        				}
-		        				if(paramValue === "dataItem")
-		        				{
-		        					return dataItem;
-		        				}
-		        				if(paramValue === "labelField")
-		        				{
-		        					return list.__labelField;
-		        				}
-		        				return paramValue;
-		        			});
-		            	}
-		            	else
-		            	{
-		            		this.__setDataCallBack(domElement,dataItem,this.__labelField);
-		            	}
-		            }
-				}
-			}
-			if(this.__listContainer.children.length > visibleData.length)
-			{
-				var childCount = this.__listContainer.children.length;
-				var visibleCount = visibleData.length;
-				for(var count = childCount - 1;count > visibleCount - 1;count--)
-				{
-					domElement = this.__listContainer.children[count];
-					domElement.index = -1;
-					if(this.util.isFunction(this.__clearDataCallBack))
-		            {
-		            	if(this.util.isString(this.__clearDataCallBack))
-		            	{
-		            		this.util.callFunctionFromString(this.__clearDataCallBack + "(domElement)",function(paramValue){
-		        				if(paramValue === "domElement")
-		        				{
-		        					return domElement;
-		        				}
-		        				return paramValue;
-		        			});
-		            	}
-		            	else
-		            	{
-		            		this.__clearDataCallBack(domElement);
-		            	}
-		            }
-				}
-			}
-			this.__startArrayElement = start;
-		}
-		var listTop = this.__scrollOffset - ((this.__currentIndex - topOffset) * this.__listItemHeight);
-		this.__listContainer.style.top = Math.max(0,listTop) + "px";
+	};
+	
+};
+
+NSUtil.prototype.loader = function(parentContainer)
+{
+	this.parentContainer = parentContainer;
+	this.util = new NSUtil();
+	this.divLoaderContainerParent = null;
+	
+	this.createComponents = function()
+	{
+		this.divLoaderContainerParent = this.util.createDiv("divLoaderContainerParent","loaderContainerParent"); 
+		this.parentContainer.appendChild(this.divLoaderContainerParent);
+		var divLoaderContainer = this.util.createDiv("divLoaderContainer","loaderContainer"); 
+		this.divLoaderContainerParent.appendChild(divLoaderContainer);
+		var divLoadingIcon = this.util.createDiv("divLoadingIcon","progress"); 
+		divLoaderContainer.appendChild(divLoadingIcon);
+		var divLoadingIconText = this.util.createDiv(null); 
+		divLoadingIconText.appendChild(document.createTextNode("Loadingâ€¦"));
+		divLoadingIcon.appendChild(divLoadingIconText);
+		var compBreak = document.createElement("br");
+		divLoaderContainer.appendChild(compBreak);
+		compBreak = document.createElement("br");
+		divLoaderContainer.appendChild(compBreak);
+		var divLoadingLabel = this.util.createDiv("divLoadingLabel","loaderText"); 
+		divLoadingLabel.appendChild(document.createTextNode("Loading"));
+		divLoaderContainer.appendChild(divLoadingLabel);
 		
-	}
-};
-
-nsList.__setPosition= function(posX,posY)
-{
-	this.__positionX = posX;
-	this.__positionY = posY;
-};
-
-nsList.__setChange= function(changeX,changeY)
-{
-	this.__changeX = this.__positionX - changeX;
-	this.__changeY = this.__positionY - changeY;
-};
-
-nsList.__scrollHandler = function(event)
-{
-	if(this.__outerContainer.scrollTop == this.__scrollOffset) 
-	{
-		return;
-	}
-	if(!this.__dataProvider || !this.__dataProvider.length) 
-	{
-		return;
-	}
-	this.__scrollOffset = Math.max(0,this.__outerContainer.scrollTop);
-	this.__scrollOffset = Math.min(this.__scrollOffset, this.__scrollHeight);
+		this.centerElement(this.divLoaderContainerParent);
+		this.centerElement(divLoadingLabel);
+		divLoadingLabel.style.top = (this.util.getDimensionAsNumber(divLoadingLabel.style.top) + 40) + "px";
+	};
 	
+	this.centerElement = function(component)
+	{
+		if(component)
+		{
+			var parent = component.parentNode;
+			component.style.left = ((parent.offsetWidth - component.offsetWidth) / 2) + "px";
+			console.log("parent.id::" + parent.id + " component.id::" + component.id + " parent.offsetWidth::" + parent.offsetWidth + " component.offsetWidth::" + component.offsetWidth);
+			component.style.top = ((parent.offsetHeight - component.offsetHeight) / 2) + "px";
+		}
+	};
 	
-	this.__setChange(this.__outerContainer.scrollLeft, this.__scrollOffset);
-	this.__renderList(this.__currentIndex - this.__changeY / this.__listItemHeight, false);
-	this.__setPosition(this.__outerContainer.scrollLeft, this.__scrollOffset);
-};
-
-nsList.__bindRenderers = function() 
-{
-	var listItem = null;
-	for(var count = 0; count < this.__listContainer.children.length; count++) 
+	this.show = function()
 	{
-		listItem = this.__listContainer.children[count];
-		this.util.removeAllChildren(listItem);
-		listItem.appendChild(this.__itemRenderer.cloneNode(true));
-		this.__setRendererProperties(listItem);
-	}
-};
-
-nsList.__setRendererProperties = function(listItem)
-{
-	if(listItem)
-	{
-		var compChild = null;
-		for(var count = 0; count < listItem.children.length; count++) 
+		if(!this.divLoaderContainerParent)
 		{
-			compChild = listItem.children[count];
-			var list = this;
-			Array.prototype.slice.call(compChild.attributes).forEach(function(attribute) 
-			{
-		        if(list.util.isFunction(attribute.value))
-		        {
-		        	var newValue = attribute.value + "(this)";
-		        	compChild.removeAttribute(attribute.name);
-					compChild.setAttribute(attribute.name,newValue);
-		        }
-			});
-			if(compChild)
-			{
-				if(compChild.hasAttribute("accessor-name"))
-				{
-					listItem[compChild.getAttribute("accessor-name")] = compChild;
-				}
-			}
-			this.__setRendererProperties(compChild);
+			this.createComponents();
 		}
-	}
-};
-
-nsList.__setRendererInData = function(listItem,item)
-{
-	if(listItem)
+		this.divLoaderContainerParent.style.display = "inline-block";
+	};
+	
+	this.hide = function()
 	{
-		var compChild = null;
-		for(var count = 0; count < listItem.children.length; count++) 
+		if(this.divLoaderContainerParent)
 		{
-			compChild = listItem.children[count];
-			if(compChild)
-			{
-				compChild.data = item;
-			}
-			//IE 9 Bug,you got to assign it back
-			//listItem.children[count] = compChild;
-			this.__setRendererInData(compChild,item);
+			this.divLoaderContainerParent.style.display = "none";
 		}
+	};
+	
+};
+
+NSUtil.prototype.ajax = function(url, callbackFunction)
+{
+	this.callbackFunction = callbackFunction;
+	this.url = url;
+	this.postBody = (arguments[2] || "");
+	
+	this.bindFunction = function (caller, object) 
+	{
+		return function() 
+		{
+			return caller.apply(object, [object]);
+		};
+	};
+
+	this.stateChange = function (object) 
+	{
+		if (this.request.readyState == 4)
+		{
+			this.callbackFunction(this.request.responseText);
+		}
+	};
+
+	this.getRequest = function() 
+	{
+		if (window.ActiveXObject)
+		{
+			return new ActiveXObject('Microsoft.XMLHTTP');
+		}
+		else if (window.XMLHttpRequest)
+		{
+			return new XMLHttpRequest();
+		}
+		return false;
+	};
+	
+	this.request = this.getRequest();
+	
+	if(this.request) 
+	{
+		var req = this.request;
+		req.onreadystatechange = this.bindFunction(this.stateChange, this);
+
+		if (this.postBody!=="") 
+		{
+			req.open("POST", url, true);
+			req.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+			req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+			req.setRequestHeader('Connection', 'close');
+		} 
+		else 
+		{
+			req.open("GET", url, true);
+		}
+
+		req.send(this.postBody);
 	}
 };
-
-nsList.propertyChange = function(attrName, oldVal, newVal, setProperty) 
-{
-	this.base.propertyChange(attrName, oldVal, newVal, setProperty);
-};
-
-
-document.registerElement("ns-list", {prototype: nsList});
