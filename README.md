@@ -1,9 +1,3 @@
-function NSUtil()
-{
-	this.__sheetId = "nsStyle";
-	this.KEYCODE = {TAB:9, ENTER:13, SHIFT:16, CTRL:17, ESC:27, LEFT:37, UP:38, RIGHT:39, DOWN:40};
-};
--------------------------------------------------------------------------------------------------------------------------------------------------------------------
 var nsContainerBase = Object.create(HTMLDivElement.prototype);
 
 nsContainerBase.INITIALIZE = "initialize";
@@ -13,6 +7,7 @@ nsContainerBase.REMOVE = "remove";
 
 /*start of private variables */
 nsContainerBase.base = null;
+nsContainerBase.__isCreationCompleted = false;
 nsContainerBase.__setProperty = true; 
 nsContainerBase.__id = null;
 nsContainerBase.__shadow = null;
@@ -89,6 +84,7 @@ nsContainerBase.initializeComponent = function()
 nsContainerBase.setComponentProperties = function() 
 {
 	console.log("In Parent setComponentProperties");
+	this.__isCreationCompleted = true;
 };
 
 nsContainerBase.propertyChange = function(attrName, oldVal, newVal, setProperty) 
