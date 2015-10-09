@@ -1,20 +1,13 @@
-if(this.hasAttribute("class") && this.__coreElement) 
-	{
-		var className = this.getAttribute("class");
-		this.util.removeStyleClass(this,className);
-		this.util.addStyleClass(this.__coreElement,className);
-	}
+Line 152
+
+nsList.componentResized = function() 
+{
 	
-	
-	
-	.nsTextBox 
-	{
-	    outline: 0;
-	    border-color: #ECECEC;
-	    border-style: solid;
-	    border-width: 1px;
-	    background-color: #ffffff;
-	    padding: 6px;
-	    border-radius: 2px;
-	    margin-bottom: 5px;
-	}	
+};
+
+Line 39
+    this.__documentMouseMoveRef = null;
+Line 111
+	this.__childContainer.style.width = (this.__component.offsetWidth + this.__scrollBarWidth) + "px";
+Line 289
+	this.__updateElements.bind(this)();
