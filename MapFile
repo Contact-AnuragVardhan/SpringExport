@@ -1,0 +1,348 @@
+ns-calendar-angular.js
+
+import { EventEmitter, Component, ViewEncapsulation, ElementRef, Input, Output, NgModule } from '@angular/core';
+import { NSCalendar } from 'nsdatepicker';
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ */
+/**
+ * @record
+ */
+function INSCalendarMarkDayDisabledFunction() { }
+/**
+ * @record
+ */
+function INSCalendarButtonSettingObject() { }
+if (false) {
+    /** @type {?|undefined} */
+    INSCalendarButtonSettingObject.prototype.html;
+    /** @type {?|undefined} */
+    INSCalendarButtonSettingObject.prototype.cssClass;
+}
+/**
+ * @record
+ */
+function INSCalendarButtonSetting() { }
+if (false) {
+    /** @type {?|undefined} */
+    INSCalendarButtonSetting.prototype.prev;
+    /** @type {?|undefined} */
+    INSCalendarButtonSetting.prototype.next;
+}
+/**
+ * @record
+ */
+function INSCalendarCustomClass() { }
+if (false) {
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.container;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.headerContainer;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.prevButton;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.nextButton;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.monthDropdown;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.yearDropdown;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.weekContainer;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.week;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.dayContainer;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.day;
+    /** @type {?|undefined} */
+    INSCalendarCustomClass.prototype.footerContainer;
+    /* Skipping unhandled member: [propName: string]: any;*/
+}
+/**
+ * @record
+ */
+function INSCalendarSetting() { }
+if (false) {
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.context;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.inputDateFormat;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.minDate;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.maxDate;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.selectedDate;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.monthValueName;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.monthTextName;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.weekName;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.markDayDisabled;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.showFooter;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.footerContent;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.theme;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.buttonSetting;
+    /** @type {?|undefined} */
+    INSCalendarSetting.prototype.customClass;
+}
+class NSCalendarAngularComponent {
+    /**
+     * @param {?} elementRef
+     */
+    constructor(elementRef) {
+        this.elementRef = elementRef;
+        this.dateSelected = new EventEmitter();
+        this.__element = elementRef.nativeElement;
+    }
+    ;
+    /**
+     * @param {?} changes
+     * @return {?}
+     */
+    ngOnChanges(changes) {
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    ngOnInit() {
+        this.__objNSCalendar = new NSCalendar(this.__element, this.setting);
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    ngAfterViewInit() {
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    ngOnDestroy() {
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    getElement() {
+        return this.__element;
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    getSelectedDate() {
+        return this.__objNSCalendar.getSelectedDate();
+    }
+    ;
+    /**
+     * @param {?} format
+     * @return {?}
+     */
+    getSelectedDateAsString(format) {
+        return this.__objNSCalendar.getSelectedDateAsString(format);
+    }
+    ;
+    /**
+     * @param {?} date
+     * @param {?} format
+     * @return {?}
+     */
+    setSelectedDate(date, format) {
+        this.__objNSCalendar.setSelectedDate(date, format);
+    }
+    ;
+    /**
+     * @param {?} year
+     * @return {?}
+     */
+    setYear(year) {
+        this.__objNSCalendar.setYear(year);
+    }
+    ;
+    /**
+     * @param {?} month
+     * @return {?}
+     */
+    setMonth(month) {
+        this.__objNSCalendar.setMonth(month);
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    reset() {
+        this.__objNSCalendar.reset();
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    setTodayDate() {
+        this.__objNSCalendar.setTodayDate();
+    }
+    ;
+    /**
+     * @param {?} styleProp
+     * @param {?} value
+     * @return {?}
+     */
+    setStyle(styleProp, value) {
+        this.__objNSCalendar.setStyle(styleProp, value);
+    }
+    ;
+    /**
+     * @param {?} isFocus
+     * @return {?}
+     */
+    setFocus(isFocus) {
+        this.__objNSCalendar.setFocus(isFocus);
+    }
+    ;
+    /**
+     * @return {?}
+     */
+    hasFocus() {
+        return this.__objNSCalendar.hasFocus();
+    }
+    ;
+    /**
+     * @param {?} theme
+     * @return {?}
+     */
+    setTheme(theme) {
+        this.__objNSCalendar.setTheme(theme);
+    }
+    ;
+    /**
+     * @param {?} propertyName
+     * @param {?} value
+     * @return {?}
+     */
+    changeProperty(propertyName, value) {
+        this.__objNSCalendar.changeProperty(propertyName, value);
+    }
+    ;
+    /**
+     * @private
+     * @return {?}
+     */
+    __addEventHandlers() {
+        /** @type {?} */
+        let util = new NSUtil();
+        /** @type {?} */
+        let eventHandler = this.__eventHandler.bind(this);
+        util.addEvent(this.__element, NSCalendar.DATE_SELECTED, eventHandler);
+    }
+    /**
+     * @private
+     * @param {?} event
+     * @return {?}
+     */
+    __eventHandler(event) {
+        this[event.type].emit(event.detail);
+    }
+}
+NSCalendarAngularComponent.decorators = [
+    { type: Component, args: [{
+                selector: 'ns-calendar-angular',
+                template: '',
+                encapsulation: ViewEncapsulation.None
+            }] }
+];
+/** @nocollapse */
+NSCalendarAngularComponent.ctorParameters = () => [
+    { type: ElementRef }
+];
+NSCalendarAngularComponent.propDecorators = {
+    setting: [{ type: Input }],
+    dateSelected: [{ type: Output }]
+};
+if (false) {
+    /** @type {?} */
+    NSCalendarAngularComponent.prototype.setting;
+    /** @type {?} */
+    NSCalendarAngularComponent.prototype.dateSelected;
+    /**
+     * @type {?}
+     * @private
+     */
+    NSCalendarAngularComponent.prototype.__element;
+    /**
+     * @type {?}
+     * @private
+     */
+    NSCalendarAngularComponent.prototype.__objNSCalendar;
+    /**
+     * @type {?}
+     * @private
+     */
+    NSCalendarAngularComponent.prototype.elementRef;
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+    /* Skipping unhandled member: ;*/
+}
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ */
+class NSCalendarAngularModule {
+}
+NSCalendarAngularModule.decorators = [
+    { type: NgModule, args: [{
+                imports: [],
+                declarations: [
+                    NSCalendarAngularComponent
+                ],
+                exports: [
+                    NSCalendarAngularComponent
+                ],
+                providers: []
+            },] }
+];
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ */
+
+/**
+ * @fileoverview added by tsickle
+ * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
+ */
+
+export { NSCalendarAngularComponent, NSCalendarAngularModule };
+//# sourceMappingURL=ns-calendar-angular.js.map
+
+
+
+ns-calendar-angular.js.map
+{"version":3,"file":"ns-calendar-angular.js","sources":["ng://ns-calendar-angular/lib/nsCalendarAngular.component.ts","ng://ns-calendar-angular/lib/nsCalendarAngular.module.ts"],"sourcesContent":["import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,\r\n    ViewEncapsulation, AfterViewInit } from '@angular/core';\r\n    \r\nimport {NSCalendar} from 'nsdatepicker';\r\n\r\ndeclare var NSUtil: any;\r\n\r\n////////// Interfaces /////////////////////////////////////////////////////////\r\n\r\nexport interface INSCalendarMarkDayDisabledFunction {\r\n    (date : any):void;\r\n}\r\n\r\nexport interface INSCalendarButtonSettingObject {\r\n    html?: string;\r\n    cssClass?: string;\r\n}\r\n\r\nexport interface INSCalendarButtonSetting {\r\n    prev?: INSCalendarButtonSettingObject;\r\n    next?: INSCalendarButtonSettingObject;\r\n}\r\n\r\nexport interface INSCalendarCustomClass {\r\n    container?: string;\r\n    headerContainer?: string;\r\n    prevButton?: string;\r\n    nextButton?: string;\r\n    monthDropdown?: string;\r\n    yearDropdown?: string;\r\n    weekContainer?: string;\r\n    week?: string;\r\n    dayContainer?: string;\r\n    day?: string;\r\n    footerContainer?: string;\r\n    [propName: string]: any;\r\n}\r\n\r\nexport interface INSCalendarSetting {\r\n    context?: any;\r\n    inputDateFormat?: string;\r\n    minDate?: any;\r\n    maxDate?: any;\r\n    selectedDate?: any;\r\n    monthValueName?: string[];\r\n    monthTextName?: string[];\r\n    weekName?: string[];\r\n    markDayDisabled?: INSCalendarMarkDayDisabledFunction;\r\n    showFooter?: boolean;\r\n    footerContent?: any;\r\n    theme?: string;\r\n    buttonSetting?: INSCalendarButtonSetting,\r\n    customClass?: INSCalendarCustomClass;\r\n}\r\n\r\n@Component({\r\n  selector: 'ns-calendar-angular',\r\n  template: '',\r\n  encapsulation: ViewEncapsulation.None\r\n})\r\n\r\nexport class NSCalendarAngularComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit \r\n{  \r\n    @Input() setting: INSCalendarSetting;\r\n  \r\n    @Output() dateSelected:EventEmitter<any> = new EventEmitter();\r\n\r\n    private __element: HTMLElement;\r\n    private __objNSCalendar: any;\r\n\r\n    constructor(private elementRef:ElementRef) \r\n    {\r\n        this.__element = elementRef.nativeElement;\r\n    };\r\n  \r\n    ngOnChanges(changes: {[propName: string]: SimpleChange}): void \r\n    {\r\n       \r\n    };\r\n  \r\n    ngOnInit() : void\r\n    {\r\n       this.__objNSCalendar = new NSCalendar(this.__element,this.setting); \r\n    };\r\n  \r\n    ngAfterViewInit(): void \r\n    {\r\n    };\r\n  \r\n    ngOnDestroy(): void \r\n    {\r\n    };\r\n  \r\n    getElement(): HTMLElement\r\n    {\r\n        return this.__element;\r\n    };\r\n    \r\n    getSelectedDate(): any\r\n    {\r\n        return this.__objNSCalendar.getSelectedDate();\r\n    };\r\n    \r\n    getSelectedDateAsString(format: string): any\r\n    {\r\n        return this.__objNSCalendar.getSelectedDateAsString(format);\r\n    };\r\n    \r\n    setSelectedDate(date: any,format: string): void\r\n    {\r\n        this.__objNSCalendar.setSelectedDate(date,format);\r\n    };\r\n    \r\n    setYear(year: number): void\r\n    {\r\n        this.__objNSCalendar.setYear(year);\r\n    };\r\n    \r\n    setMonth(month: number): void\r\n    {\r\n        this.__objNSCalendar.setMonth(month);\r\n    };\r\n    \r\n    reset(): void\r\n    {\r\n        this.__objNSCalendar.reset();\r\n    };\r\n    \r\n    setTodayDate(): void\r\n    {\r\n        this.__objNSCalendar.setTodayDate();\r\n    };\r\n    \r\n    setStyle(styleProp: string,value: any): void\r\n    {\r\n        this.__objNSCalendar.setStyle(styleProp,value);\r\n    };\r\n    \r\n    setFocus(isFocus: boolean): void\r\n    {\r\n        this.__objNSCalendar.setFocus(isFocus);\r\n    };\r\n    \r\n    hasFocus(): boolean\r\n    {\r\n        return this.__objNSCalendar.hasFocus();\r\n    };\r\n    \r\n    setTheme(theme: string): void\r\n    {\r\n        this.__objNSCalendar.setTheme(theme);\r\n    };\r\n    \r\n    changeProperty(propertyName: string,value: any): void\r\n    {\r\n        this.__objNSCalendar.changeProperty(propertyName,value);\r\n    };\r\n    \r\n    private __addEventHandlers(): void\r\n    {\r\n        let util = new NSUtil();\r\n        let eventHandler:any = this.__eventHandler.bind(this);\r\n        util.addEvent(this.__element,NSCalendar.DATE_SELECTED,eventHandler);\r\n    }\r\n  \r\n    private __eventHandler(event:any)\r\n    {\r\n        this[event.type].emit(event.detail);\r\n    }\r\n}","import { NgModule, ModuleWithProviders } from '@angular/core';\r\n\r\nimport { NSCalendarAngularComponent } from './nsCalendarAngular.component';\r\n\r\n@NgModule({\r\n  imports: [\r\n  ],\r\n  declarations: [\r\n    NSCalendarAngularComponent\r\n  ],\r\n  exports:[\r\n    NSCalendarAngularComponent\r\n  ],\r\n  providers: [\r\n  ]\r\n})\r\nexport class NSCalendarAngularModule {\r\n  \r\n}"],"names":[],"mappings":"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"}
+
+
+
