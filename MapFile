@@ -1,348 +1,1762 @@
-ns-calendar-angular.js
+import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,
+    ViewEncapsulation, AfterViewInit } from '@angular/core';
 
-import { EventEmitter, Component, ViewEncapsulation, ElementRef, Input, Output, NgModule } from '@angular/core';
-import { NSCalendar } from 'nsdatepicker';
+declare var NSUtil: any;
+declare var NSCalendar: any;
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-/**
- * @record
- */
-function INSCalendarMarkDayDisabledFunction() { }
-/**
- * @record
- */
-function INSCalendarButtonSettingObject() { }
-if (false) {
-    /** @type {?|undefined} */
-    INSCalendarButtonSettingObject.prototype.html;
-    /** @type {?|undefined} */
-    INSCalendarButtonSettingObject.prototype.cssClass;
+////////// Interfaces /////////////////////////////////////////////////////////
+
+export interface INSCalendarMarkDayDisabledFunction {
+    (date : any):void;
 }
-/**
- * @record
- */
-function INSCalendarButtonSetting() { }
-if (false) {
-    /** @type {?|undefined} */
-    INSCalendarButtonSetting.prototype.prev;
-    /** @type {?|undefined} */
-    INSCalendarButtonSetting.prototype.next;
+
+export interface INSCalendarButtonSettingObject {
+    html?: string;
+    cssClass?: string;
 }
-/**
- * @record
- */
-function INSCalendarCustomClass() { }
-if (false) {
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.container;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.headerContainer;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.prevButton;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.nextButton;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.monthDropdown;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.yearDropdown;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.weekContainer;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.week;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.dayContainer;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.day;
-    /** @type {?|undefined} */
-    INSCalendarCustomClass.prototype.footerContainer;
-    /* Skipping unhandled member: [propName: string]: any;*/
+
+export interface INSCalendarButtonSetting {
+    prev?: INSCalendarButtonSettingObject;
+    next?: INSCalendarButtonSettingObject;
 }
-/**
- * @record
- */
-function INSCalendarSetting() { }
-if (false) {
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.context;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.inputDateFormat;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.minDate;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.maxDate;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.selectedDate;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.monthValueName;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.monthTextName;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.weekName;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.markDayDisabled;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.showFooter;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.footerContent;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.theme;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.buttonSetting;
-    /** @type {?|undefined} */
-    INSCalendarSetting.prototype.customClass;
+
+export interface INSCalendarCustomClass {
+    container?: string;
+    headerContainer?: string;
+    prevButton?: string;
+    nextButton?: string;
+    monthDropdown?: string;
+    yearDropdown?: string;
+    weekContainer?: string;
+    week?: string;
+    dayContainer?: string;
+    day?: string;
+    footerContainer?: string;
+    [propName: string]: any;
 }
-class NSCalendarAngularComponent {
-    /**
-     * @param {?} elementRef
-     */
-    constructor(elementRef) {
-        this.elementRef = elementRef;
-        this.dateSelected = new EventEmitter();
+
+export interface INSCalendarSetting {
+    context?: any;
+    inputDateFormat?: string;
+    minDate?: any;
+    maxDate?: any;
+    selectedDate?: any;
+    monthValueName?: string[];
+    monthTextName?: string[];
+    weekName?: string[];
+    markDayDisabled?: INSCalendarMarkDayDisabledFunction;
+    showFooter?: boolean;
+    footerContent?: any;
+    theme?: string;
+    buttonSetting?: INSCalendarButtonSetting,
+    customClass?: INSCalendarCustomClass;
+}
+
+@Component({
+  selector: 'ns-calendar',
+  template: '',
+  encapsulation: ViewEncapsulation.None
+})
+
+export class NSCalendarComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit 
+{  
+    @Input() setting: INSCalendarSetting;
+  
+    @Output() dateSelected:EventEmitter<any> = new EventEmitter();
+
+    private __element: HTMLElement;
+    private __objNSCalendar: any;
+
+    constructor(private elementRef:ElementRef) 
+    {
         this.__element = elementRef.nativeElement;
-    }
-    ;
-    /**
-     * @param {?} changes
-     * @return {?}
-     */
-    ngOnChanges(changes) {
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    ngOnInit() {
-        this.__objNSCalendar = new NSCalendar(this.__element, this.setting);
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    ngAfterViewInit() {
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    ngOnDestroy() {
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    getElement() {
+    };
+  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}): void 
+    {
+       
+    };
+  
+    ngOnInit() : void
+    {
+       this.__objNSCalendar = new NSCalendar(this.__element,this.setting); 
+    };
+  
+    ngAfterViewInit(): void 
+    {
+    };
+  
+    ngOnDestroy(): void 
+    {
+    };
+  
+    getElement(): HTMLElement
+    {
         return this.__element;
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    getSelectedDate() {
+    };
+    
+    getSelectedDate(): any
+    {
         return this.__objNSCalendar.getSelectedDate();
-    }
-    ;
-    /**
-     * @param {?} format
-     * @return {?}
-     */
-    getSelectedDateAsString(format) {
+    };
+    
+    getSelectedDateAsString(format: string): any
+    {
         return this.__objNSCalendar.getSelectedDateAsString(format);
-    }
-    ;
-    /**
-     * @param {?} date
-     * @param {?} format
-     * @return {?}
-     */
-    setSelectedDate(date, format) {
-        this.__objNSCalendar.setSelectedDate(date, format);
-    }
-    ;
-    /**
-     * @param {?} year
-     * @return {?}
-     */
-    setYear(year) {
+    };
+    
+    setSelectedDate(date: any,format: string): void
+    {
+        this.__objNSCalendar.setSelectedDate(date,format);
+    };
+    
+    setYear(year: number): void
+    {
         this.__objNSCalendar.setYear(year);
-    }
-    ;
-    /**
-     * @param {?} month
-     * @return {?}
-     */
-    setMonth(month) {
+    };
+    
+    setMonth(month: number): void
+    {
         this.__objNSCalendar.setMonth(month);
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    reset() {
+    };
+    
+    reset(): void
+    {
         this.__objNSCalendar.reset();
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    setTodayDate() {
+    };
+    
+    setTodayDate(): void
+    {
         this.__objNSCalendar.setTodayDate();
-    }
-    ;
-    /**
-     * @param {?} styleProp
-     * @param {?} value
-     * @return {?}
-     */
-    setStyle(styleProp, value) {
-        this.__objNSCalendar.setStyle(styleProp, value);
-    }
-    ;
-    /**
-     * @param {?} isFocus
-     * @return {?}
-     */
-    setFocus(isFocus) {
+    };
+    
+    setStyle(styleProp: string,value: any): void
+    {
+        this.__objNSCalendar.setStyle(styleProp,value);
+    };
+    
+    setFocus(isFocus: boolean): void
+    {
         this.__objNSCalendar.setFocus(isFocus);
-    }
-    ;
-    /**
-     * @return {?}
-     */
-    hasFocus() {
+    };
+    
+    hasFocus(): boolean
+    {
         return this.__objNSCalendar.hasFocus();
-    }
-    ;
-    /**
-     * @param {?} theme
-     * @return {?}
-     */
-    setTheme(theme) {
+    };
+    
+    setTheme(theme: string): void
+    {
         this.__objNSCalendar.setTheme(theme);
-    }
-    ;
-    /**
-     * @param {?} propertyName
-     * @param {?} value
-     * @return {?}
-     */
-    changeProperty(propertyName, value) {
-        this.__objNSCalendar.changeProperty(propertyName, value);
-    }
-    ;
-    /**
-     * @private
-     * @return {?}
-     */
-    __addEventHandlers() {
-        /** @type {?} */
+    };
+    
+    changeProperty(propertyName: string,value: any): void
+    {
+        this.__objNSCalendar.changeProperty(propertyName,value);
+    };
+    
+    private __addEventHandlers(): void
+    {
         let util = new NSUtil();
-        /** @type {?} */
-        let eventHandler = this.__eventHandler.bind(this);
-        util.addEvent(this.__element, NSCalendar.DATE_SELECTED, eventHandler);
+        let eventHandler:any = this.__eventHandler.bind(this);
+        util.addEvent(this.__element,NSCalendar.DATE_SELECTED,eventHandler);
     }
-    /**
-     * @private
-     * @param {?} event
-     * @return {?}
-     */
-    __eventHandler(event) {
+  
+    private __eventHandler(event:any)
+    {
         this[event.type].emit(event.detail);
     }
 }
-NSCalendarAngularComponent.decorators = [
-    { type: Component, args: [{
-                selector: 'ns-calendar-angular',
-                template: '',
-                encapsulation: ViewEncapsulation.None
-            }] }
-];
-/** @nocollapse */
-NSCalendarAngularComponent.ctorParameters = () => [
-    { type: ElementRef }
-];
-NSCalendarAngularComponent.propDecorators = {
-    setting: [{ type: Input }],
-    dateSelected: [{ type: Output }]
-};
-if (false) {
-    /** @type {?} */
-    NSCalendarAngularComponent.prototype.setting;
-    /** @type {?} */
-    NSCalendarAngularComponent.prototype.dateSelected;
-    /**
-     * @type {?}
-     * @private
-     */
-    NSCalendarAngularComponent.prototype.__element;
-    /**
-     * @type {?}
-     * @private
-     */
-    NSCalendarAngularComponent.prototype.__objNSCalendar;
-    /**
-     * @type {?}
-     * @private
-     */
-    NSCalendarAngularComponent.prototype.elementRef;
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
-    /* Skipping unhandled member: ;*/
+
+
+import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,
+    ViewEncapsulation, AfterViewInit } from '@angular/core';
+
+import { NSCalendarComponent, INSCalendarCustomClass, INSCalendarSetting } from '../nsCalendar/nsCalendar.component';
+
+declare var NSUtil: any;
+declare var NSCalendar: any;
+declare var NSDatePicker: any;
+
+////////// Interfaces /////////////////////////////////////////////////////////
+
+export interface INSDatePickerCustomClass {
+    container?: string;
+    textInput?: string;
+    button?: string;
+    calContainer?: string;
+    calHeaderContainer?: string;
+    calPrevButton?: string;
+    calNextButton?: string;
+    calMonthDropdown?: string;
+    calYearDropdown?: string;
+    calWeekContainer?: string;
+    calWeek?: string;
+    calDayContainer?: string;
+    calDay?: string;
+    calFooterContainer?: string;
+    [propName: string]: any;
 }
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
-class NSCalendarAngularModule {
+export interface INSDatePickerSetting  extends INSCalendarSetting {
+    dateOutputFormat?: string;
+    placeHolder?: string;
+    buttonHtml?: string;
+    enableTextBoxDisabled?: boolean;
+    customClass?: INSDatePickerCustomClass;
 }
-NSCalendarAngularModule.decorators = [
-    { type: NgModule, args: [{
-                imports: [],
-                declarations: [
-                    NSCalendarAngularComponent
-                ],
-                exports: [
-                    NSCalendarAngularComponent
-                ],
-                providers: []
-            },] }
-];
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
+@Component({
+  selector: 'ns-datePicker',
+  template: '',
+  encapsulation: ViewEncapsulation.None
+})
 
-/**
- * @fileoverview added by tsickle
- * @suppress {checkTypes,constantProperty,extraRequire,missingOverride,missingReturn,unusedPrivateMembers,uselessCode} checked by tsc
- */
+export class NSDatePickerComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit 
+{  
+    @Input() setting: INSDatePickerSetting;
+  
+    @Output() nsCalendarOpened:EventEmitter<any> = new EventEmitter();
+    @Output() nsCalendarClosed:EventEmitter<any> = new EventEmitter();
+    @Output() nsDateSelected:EventEmitter<any> = new EventEmitter();
+    @Output() nsInputChange:EventEmitter<any> = new EventEmitter();
+    @Output() modelChange = new EventEmitter();
+    
+    @Input()
+    get model(): any
+    {
+        return this.__modelValue;
+    };
+    
+    set model(value: any)
+    {
+        if(!this.__isInternalCall)
+        {
+            this.__modelValue = value;
+            if(this.__objNSDatePicker)
+            {
+                this.__objNSDatePicker.setSelectedDate(this.__modelValue,null,false);
+            }
+            this.modelChange.emit(this.__modelValue);
+        }
+        this.__isInternalCall = false;
+    };
 
-export { NSCalendarAngularComponent, NSCalendarAngularModule };
-//# sourceMappingURL=ns-calendar-angular.js.map
+    private __element: HTMLElement;
+    private __objNSDatePicker: any;
+    private __modelValue: any;
+    private __isInternalCall: boolean;
+
+    constructor(private elementRef:ElementRef) 
+    {
+        this.__element = elementRef.nativeElement;
+    };
+  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}): void 
+    {
+       
+    };
+  
+    ngOnInit() : void
+    {
+       this.__objNSDatePicker = new NSDatePicker(this.__element,this.setting);
+       this.__addEventHandlers();
+    };
+  
+    ngAfterViewInit(): void 
+    {
+    };
+  
+    ngOnDestroy(): void 
+    {
+    };
+  
+    getElement(): HTMLElement
+    {
+        return this.__element;
+    };
+    
+    getSelectedDate(): any
+    {
+        return this.__objNSDatePicker.getSelectedDate();
+    };
+    
+    getSelectedDateAsString(format: string): any
+    {
+        return this.__objNSDatePicker.getSelectedDateAsString(format);
+    };
+    
+    setSelectedDate(date: any,format: string): void
+    {
+        this.__objNSDatePicker.setSelectedDate(date,format);
+    };
+    
+    setYear(year: number): void
+    {
+        this.__objNSDatePicker.setYear(year);
+    };
+    
+    setMonth(month: number): void
+    {
+        this.__objNSDatePicker.setMonth(month);
+    };
+    
+    reset(): void
+    {
+        this.__objNSDatePicker.reset();
+    };
+    
+    setTodayDate(): void
+    {
+        this.__objNSDatePicker.setTodayDate();
+    };
+    
+    showCalendar(): void
+    {
+        this.__objNSDatePicker.showCalendar();
+    };
+    
+    closeCalendar(): void
+    {
+        this.__objNSDatePicker.closeCalendar();
+    };
+    
+    getCalendar(): any
+    {
+        return this.__objNSDatePicker.getCalendar();
+    };
+    
+    getTextBox(): any
+    {
+        return this.__objNSDatePicker.getTextBox();
+    };
+    
+    toggleCalendarVisibility(): void
+    {
+        this.__objNSDatePicker.toggleCalendarVisibility();
+    };
+    
+    setStyle(styleProp: string,value: any): void
+    {
+        this.__objNSDatePicker.setStyle(styleProp,value);
+    };
+    
+    setFocus(isFocus: boolean): void
+    {
+        this.__objNSDatePicker.setFocus(isFocus);
+    };
+    
+    hasFocus(): boolean
+    {
+        return this.__objNSDatePicker.hasFocus();
+    };
+    
+    setTheme(theme: string): void
+    {
+        this.__objNSDatePicker.setTheme(theme);
+    };
+    
+    changeProperty(propertyName: string,value: any): void
+    {
+        this.__objNSDatePicker.changeProperty(propertyName,value);
+    };
+    
+    private __addEventHandlers(): void
+    {
+        let util = new NSUtil();
+        let eventHandler:any = this.__eventHandler.bind(this);
+        util.addEvent(this.__element,NSDatePicker.CALENDAR_OPENED,eventHandler);
+        util.addEvent(this.__element,NSDatePicker.CALENDAR_CLOSED,eventHandler);
+        util.addEvent(this.__element,NSDatePicker.DATE_SELECTED,eventHandler);
+        util.addEvent(this.__element,NSDatePicker.INPUT_CHANGE,eventHandler);
+        util.addEvent(this.__element,NSDatePicker.DATE_SELECTED,this.__dateSelectedHandler.bind(this));
+        util.addEvent(this.__element,NSDatePicker.INPUT_CHANGE,this.__inputChangeHandler.bind(this));
+    }
+    
+    private __dateSelectedHandler(event:any)
+    {
+        this.__isInternalCall = true;
+        this.__modelValue = event.detail;
+        this.modelChange.emit(this.__modelValue);
+    }
+    
+    private __inputChangeHandler(event:any)
+    {
+        this.__isInternalCall = true;
+        this.__modelValue = event.detail;
+        this.modelChange.emit(this.__modelValue);
+    }
+  
+    private __eventHandler(event:any)
+    {
+        let type: any = event.type;
+        type = "ns" + type.charAt(0).toUpperCase() + type.slice(1);
+        this[type].emit(event.detail);
+    }
+}
+
+import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,
+    ViewEncapsulation, AfterViewInit } from '@angular/core';
+
+import { NSPanelComponent, INSPanelToolBarDetails, INSPanelSetting } from '../../nsPanel/nsPanel.component';
+
+declare var NSUtil: any;
+declare var NSMessageBox: any;
+declare var NSPanel: any;
+
+////////// Interfaces /////////////////////////////////////////////////////////
+
+export interface INSMessageBoxCallbackFunction {
+    (event: any):void;
+}
+
+export interface INSMessageBoxConfirmButtonSetting{
+    label?: string;
+    cssClass?: string;
+    callback?: INSMessageBoxCallbackFunction;
+}
+
+export interface INSMessageBoxToolBarDetails extends INSPanelToolBarDetails {
+    messageBody?: string;
+    messageFooter?: string;
+}
+
+export interface INSMessageBoxSetting extends INSPanelSetting {
+    
+} 
+
+export interface INSMessageBoxAlertSetting extends INSMessageBoxSetting {
+    bodyContent?: any;
+    bodyTemplate?: string;
+    bodyTemplateUrl?: string;
+    buttonLabel?: string;
+    buttonClass?: string;
+    callback?: INSMessageBoxCallbackFunction;
+}
+
+export interface INSMessageBoxConfirmSetting extends INSMessageBoxSetting {
+    bodyContent?: any;
+    bodyTemplate?: string;
+    bodyTemplateUrl?: string;
+    confirm?: INSMessageBoxConfirmButtonSetting;
+    cancel?: INSMessageBoxConfirmButtonSetting;
+}
+
+export interface INSMessageBoxCustomSetting extends INSMessageBoxSetting {
+    bodyContent?: any;
+    bodyTemplate?: string;
+    bodyTemplateUrl?: string;
+    buttons?: INSMessageBoxConfirmButtonSetting[];
+}
+
+
+@Component({
+  selector: 'ns-messageBox',
+  template: '<ng-content></ng-content>',
+  encapsulation: ViewEncapsulation.None
+})
+
+export class NSMessageBoxComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit 
+{  
+    @Input() setting: INSMessageBoxSetting;
+    
+    @Output() dragStaring:EventEmitter<any> = new EventEmitter();
+    @Output() dragging:EventEmitter<any> = new EventEmitter();
+    @Output() dragEnd:EventEmitter<any> = new EventEmitter();
+    @Output() resizeStaring:EventEmitter<any> = new EventEmitter();
+    @Output() resizing:EventEmitter<any> = new EventEmitter();
+    @Output() resizeEnd:EventEmitter<any> = new EventEmitter();
+    @Output() collapseStarting:EventEmitter<any> = new EventEmitter();
+    @Output() collapseEnd:EventEmitter<any> = new EventEmitter();
+    @Output() expansionStarting:EventEmitter<any> = new EventEmitter();
+    @Output() expansionEnd:EventEmitter<any> = new EventEmitter();
+    @Output() minimizeStarting:EventEmitter<any> = new EventEmitter();
+    @Output() minimizeEnd:EventEmitter<any> = new EventEmitter();
+    @Output() maximizeStarting:EventEmitter<any> = new EventEmitter();
+    @Output() maximizeEnd:EventEmitter<any> = new EventEmitter();
+    @Output() fullScreenStarting:EventEmitter<any> = new EventEmitter();
+    @Output() fullScreenEnd:EventEmitter<any> = new EventEmitter();
+    @Output() restoreStarting:EventEmitter<any> = new EventEmitter();
+    @Output() restoreEnd:EventEmitter<any> = new EventEmitter();
+    @Output() closed:EventEmitter<any> = new EventEmitter();
+
+    private __element: HTMLElement;
+    private __objNSMessageBox: any;
+    private __objNSPanel: any;
+    private __objBodyContent: any;
+    
+
+    constructor(private elementRef:ElementRef) 
+    {
+        this.__element = elementRef.nativeElement;
+        console.log("In constructor");
+    };
+  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}): void 
+    {
+        
+    };
+  
+    ngOnInit() : void
+    {
+        if(this.__element)
+        {
+           this.__objBodyContent = this.__element;
+        }
+        this.__createComponent();
+    };
+  
+    ngAfterViewInit(): void 
+    {
+    };
+  
+    ngOnDestroy(): void 
+    {
+    };
+  
+    getElement(): HTMLElement
+    {
+        return this.__element;
+    };
+  
+    minimize(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.minimize();
+        }
+    };
+    
+    maximize(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.maximize();
+        }
+    };
+    
+    collapse(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.collapse();
+        }
+    };
+    
+    expand(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.expand();
+        }
+    };
+    
+    fullScreen(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.fullScreen();
+        }
+    };
+    
+    restore(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.restore();
+        }
+    };
+    
+    disableResize(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableResize();
+        }
+    };
+    
+    disableDrag(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableDrag();
+        }
+    };
+    
+    disableCollapse(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableCollapse();
+        }
+    };
+    
+    disableMinMax(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableCollapse();
+        }
+    };
+    
+    disableFullScreen(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableCollapse();
+        }
+    };
+    
+    isCollapsed(): boolean
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.isCollapsed();
+        }
+        return false;
+    };
+    
+    isMinimized(): boolean
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.isMinimized();
+        }
+        return false;
+    };
+    
+    isFullScreen(): boolean
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.isFullScreen();
+        }
+        return false;
+    };
+    
+    alert(message: string | INSMessageBoxAlertSetting, title?: string, callback?: INSMessageBoxCallbackFunction): void
+    {
+        this.__createComponent();
+        this.__objNSMessageBox.alert(message,title,callback);
+        this.__creationHandler();
+    };
+    
+    confirm(message: string | INSMessageBoxConfirmSetting, title?: string, confirmCallback?: INSMessageBoxCallbackFunction, cancelCallback?: INSMessageBoxCallbackFunction): void
+    {
+        this.__createComponent();
+        this.__objNSMessageBox.confirm(message,title,confirmCallback,cancelCallback);
+        this.__creationHandler();
+    };
+    
+    custom(setting: INSMessageBoxCustomSetting):void
+    {
+        this.__createComponent();
+        if(setting || this.__objBodyContent)
+        {
+            if(!setting)
+            {
+                setting = {};
+            }
+            if(!setting.bodyContent && this.__objBodyContent)
+            {
+                setting.bodyContent = this.__objBodyContent;
+            }
+            this.__objNSMessageBox.custom(setting);
+            this.__creationHandler();
+        }
+    };
+    
+    close(): void
+    {
+        this.__createComponent();
+        this.__objNSMessageBox.close();
+    };
+    
+    getPanel(): any
+    {
+        return this.__objNSPanel;
+    };
+    
+    private __createComponent(): void
+    {
+        if(!this.__objNSMessageBox)
+        {
+            this.__objNSMessageBox = new NSMessageBox(this.setting); 
+            this.__addEventHandlers();
+        }
+    };
+    
+    private __creationHandler(): void
+    {
+        this.__objNSPanel =  this.__objNSMessageBox.getPanel();
+        if(!this.__element)
+        {
+            this.__element = this.__objNSPanel.getBaseElement();
+        }
+    };
+    
+    private __addEventHandlers(): void
+    {
+        if(this.__element)
+        {
+            let util = new NSUtil();
+            let eventHandler:any = this.__navEventHandler.bind(this);
+            util.addEvent(this.__element,NSPanel.DRAG_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.DRAGGING,eventHandler);
+            util.addEvent(this.__element,NSPanel.DRAG_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESIZE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESIZING,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESIZE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.COLLAPSE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.COLLAPSE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.EXPANSION_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.EXPANSION_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.MINIMIZE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.MINIMIZE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.MAXIMIZE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.MAXIMIZE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.FULLSCREEN_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.FULLSCREEN_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESTORE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESTORE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.CLOSED,eventHandler);
+        }
+    };
+  
+    private __navEventHandler(event:any)
+    {
+        this[event.type].emit(event.detail);
+    }
+}
+
+import {Injectable, ViewContainerRef, ComponentFactoryResolver, ApplicationRef, Injector,
+        EmbeddedViewRef, ComponentRef, ReflectiveInjector } from '@angular/core';
+
+import { NSPanelComponent, INSPanelToolBarDetails, INSPanelSetting } from '../../nsPanel/nsPanel.component';
+import { NSMessageBoxComponent, INSMessageBoxAlertSetting, INSMessageBoxCallbackFunction, INSMessageBoxConfirmSetting } from '../component/nsMessageBox.component';
+import { DynamicComponentService } from '../../services/dynamicComponent/dynamicComponent.service';
+import { PopUpComponent } from '../../popUpComponent/popUp.component';
+
+@Injectable()
+export class NSMessageBoxService 
+{
+    constructor(private dynamicComponentService: DynamicComponentService
+               ) 
+    {
+        //remove when you remove PopUpComponent as it is a bad design 
+        //Ideally NSMessageBoxService should be injected in every component and then its function should be called
+         PopUpComponent.setMessageBoxService(this);
+    }
+    
+    alert(message: string | INSMessageBoxAlertSetting, title?: string, callback?: INSMessageBoxCallbackFunction): NSMessageBoxComponent
+    {
+        const messageBox: NSMessageBoxComponent = this.__createComponent();
+        messageBox.alert(message,title,callback);
+        return messageBox;
+    };
+    
+    confirm(message: string | INSMessageBoxConfirmSetting, title?: string, confirmCallback?: INSMessageBoxCallbackFunction, cancelCallback?: INSMessageBoxCallbackFunction): NSMessageBoxComponent
+    {
+        const messageBox: NSMessageBoxComponent = this.__createComponent();
+        messageBox.confirm(message,title,confirmCallback,cancelCallback);
+        return messageBox;
+    };
+    
+    private __createComponent(): any
+    {
+        let messageBoxComponentRef: ComponentRef<NSMessageBoxComponent> = this.dynamicComponentService.createComponentRef(NSMessageBoxComponent);
+        return this.dynamicComponentService.getInstanceFromComponentRef(messageBoxComponentRef);
+    };
+    
+    
+}
 
 
 
-ns-calendar-angular.js.map
-{"version":3,"file":"ns-calendar-angular.js","sources":["ng://ns-calendar-angular/lib/nsCalendarAngular.component.ts","ng://ns-calendar-angular/lib/nsCalendarAngular.module.ts"],"sourcesContent":["import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,\r\n    ViewEncapsulation, AfterViewInit } from '@angular/core';\r\n    \r\nimport {NSCalendar} from 'nsdatepicker';\r\n\r\ndeclare var NSUtil: any;\r\n\r\n////////// Interfaces /////////////////////////////////////////////////////////\r\n\r\nexport interface INSCalendarMarkDayDisabledFunction {\r\n    (date : any):void;\r\n}\r\n\r\nexport interface INSCalendarButtonSettingObject {\r\n    html?: string;\r\n    cssClass?: string;\r\n}\r\n\r\nexport interface INSCalendarButtonSetting {\r\n    prev?: INSCalendarButtonSettingObject;\r\n    next?: INSCalendarButtonSettingObject;\r\n}\r\n\r\nexport interface INSCalendarCustomClass {\r\n    container?: string;\r\n    headerContainer?: string;\r\n    prevButton?: string;\r\n    nextButton?: string;\r\n    monthDropdown?: string;\r\n    yearDropdown?: string;\r\n    weekContainer?: string;\r\n    week?: string;\r\n    dayContainer?: string;\r\n    day?: string;\r\n    footerContainer?: string;\r\n    [propName: string]: any;\r\n}\r\n\r\nexport interface INSCalendarSetting {\r\n    context?: any;\r\n    inputDateFormat?: string;\r\n    minDate?: any;\r\n    maxDate?: any;\r\n    selectedDate?: any;\r\n    monthValueName?: string[];\r\n    monthTextName?: string[];\r\n    weekName?: string[];\r\n    markDayDisabled?: INSCalendarMarkDayDisabledFunction;\r\n    showFooter?: boolean;\r\n    footerContent?: any;\r\n    theme?: string;\r\n    buttonSetting?: INSCalendarButtonSetting,\r\n    customClass?: INSCalendarCustomClass;\r\n}\r\n\r\n@Component({\r\n  selector: 'ns-calendar-angular',\r\n  template: '',\r\n  encapsulation: ViewEncapsulation.None\r\n})\r\n\r\nexport class NSCalendarAngularComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit \r\n{  \r\n    @Input() setting: INSCalendarSetting;\r\n  \r\n    @Output() dateSelected:EventEmitter<any> = new EventEmitter();\r\n\r\n    private __element: HTMLElement;\r\n    private __objNSCalendar: any;\r\n\r\n    constructor(private elementRef:ElementRef) \r\n    {\r\n        this.__element = elementRef.nativeElement;\r\n    };\r\n  \r\n    ngOnChanges(changes: {[propName: string]: SimpleChange}): void \r\n    {\r\n       \r\n    };\r\n  \r\n    ngOnInit() : void\r\n    {\r\n       this.__objNSCalendar = new NSCalendar(this.__element,this.setting); \r\n    };\r\n  \r\n    ngAfterViewInit(): void \r\n    {\r\n    };\r\n  \r\n    ngOnDestroy(): void \r\n    {\r\n    };\r\n  \r\n    getElement(): HTMLElement\r\n    {\r\n        return this.__element;\r\n    };\r\n    \r\n    getSelectedDate(): any\r\n    {\r\n        return this.__objNSCalendar.getSelectedDate();\r\n    };\r\n    \r\n    getSelectedDateAsString(format: string): any\r\n    {\r\n        return this.__objNSCalendar.getSelectedDateAsString(format);\r\n    };\r\n    \r\n    setSelectedDate(date: any,format: string): void\r\n    {\r\n        this.__objNSCalendar.setSelectedDate(date,format);\r\n    };\r\n    \r\n    setYear(year: number): void\r\n    {\r\n        this.__objNSCalendar.setYear(year);\r\n    };\r\n    \r\n    setMonth(month: number): void\r\n    {\r\n        this.__objNSCalendar.setMonth(month);\r\n    };\r\n    \r\n    reset(): void\r\n    {\r\n        this.__objNSCalendar.reset();\r\n    };\r\n    \r\n    setTodayDate(): void\r\n    {\r\n        this.__objNSCalendar.setTodayDate();\r\n    };\r\n    \r\n    setStyle(styleProp: string,value: any): void\r\n    {\r\n        this.__objNSCalendar.setStyle(styleProp,value);\r\n    };\r\n    \r\n    setFocus(isFocus: boolean): void\r\n    {\r\n        this.__objNSCalendar.setFocus(isFocus);\r\n    };\r\n    \r\n    hasFocus(): boolean\r\n    {\r\n        return this.__objNSCalendar.hasFocus();\r\n    };\r\n    \r\n    setTheme(theme: string): void\r\n    {\r\n        this.__objNSCalendar.setTheme(theme);\r\n    };\r\n    \r\n    changeProperty(propertyName: string,value: any): void\r\n    {\r\n        this.__objNSCalendar.changeProperty(propertyName,value);\r\n    };\r\n    \r\n    private __addEventHandlers(): void\r\n    {\r\n        let util = new NSUtil();\r\n        let eventHandler:any = this.__eventHandler.bind(this);\r\n        util.addEvent(this.__element,NSCalendar.DATE_SELECTED,eventHandler);\r\n    }\r\n  \r\n    private __eventHandler(event:any)\r\n    {\r\n        this[event.type].emit(event.detail);\r\n    }\r\n}","import { NgModule, ModuleWithProviders } from '@angular/core';\r\n\r\nimport { NSCalendarAngularComponent } from './nsCalendarAngular.component';\r\n\r\n@NgModule({\r\n  imports: [\r\n  ],\r\n  declarations: [\r\n    NSCalendarAngularComponent\r\n  ],\r\n  exports:[\r\n    NSCalendarAngularComponent\r\n  ],\r\n  providers: [\r\n  ]\r\n})\r\nexport class NSCalendarAngularModule {\r\n  \r\n}"],"names":[],"mappings":";;;;;;;AAAA;;;AASA,iDAEC;;;;AAED,6CAGC;;;IAFG,8CAAc;;IACd,kDAAkB;;;;;AAGtB,uCAGC;;;IAFG,wCAAsC;;IACtC,wCAAsC;;;;;AAG1C,qCAaC;;;IAZG,2CAAmB;;IACnB,iDAAyB;;IACzB,4CAAoB;;IACpB,4CAAoB;;IACpB,+CAAuB;;IACvB,8CAAsB;;IACtB,+CAAuB;;IACvB,sCAAc;;IACd,8CAAsB;;IACtB,qCAAa;;IACb,iDAAyB;;;;;;AAI7B,iCAeC;;;IAdG,qCAAc;;IACd,6CAAyB;;IACzB,qCAAc;;IACd,qCAAc;;IACd,0CAAmB;;IACnB,4CAA0B;;IAC1B,2CAAyB;;IACzB,sCAAoB;;IACpB,6CAAqD;;IACrD,wCAAqB;;IACrB,2CAAoB;;IACpB,mCAAe;;IACf,2CAAyC;;IACzC,yCAAqC;;AASzC,MAAa,0BAA0B;;;;IASnC,YAAoB,UAAqB;QAArB,eAAU,GAAV,UAAU,CAAW;QAL/B,iBAAY,GAAqB,IAAI,YAAY,EAAE,CAAC;QAO1D,IAAI,CAAC,SAAS,GAAG,UAAU,CAAC,aAAa,CAAC;KAC7C;;;;;;IAED,WAAW,CAAC,OAA2C;KAGtD;;;;;IAED,QAAQ;QAEL,IAAI,CAAC,eAAe,GAAG,IAAI,UAAU,CAAC,IAAI,CAAC,SAAS,EAAC,IAAI,CAAC,OAAO,CAAC,CAAC;KACrE;;;;;IAED,eAAe;KAEd;;;;;IAED,WAAW;KAEV;;;;;IAED,UAAU;QAEN,OAAO,IAAI,CAAC,SAAS,CAAC;KACzB;;;;;IAED,eAAe;QAEX,OAAO,IAAI,CAAC,eAAe,CAAC,eAAe,EAAE,CAAC;KACjD;;;;;;IAED,uBAAuB,CAAC,MAAc;QAElC,OAAO,IAAI,CAAC,eAAe,CAAC,uBAAuB,CAAC,MAAM,CAAC,CAAC;KAC/D;;;;;;;IAED,eAAe,CAAC,IAAS,EAAC,MAAc;QAEpC,IAAI,CAAC,eAAe,CAAC,eAAe,CAAC,IAAI,EAAC,MAAM,CAAC,CAAC;KACrD;;;;;;IAED,OAAO,CAAC,IAAY;QAEhB,IAAI,CAAC,eAAe,CAAC,OAAO,CAAC,IAAI,CAAC,CAAC;KACtC;;;;;;IAED,QAAQ,CAAC,KAAa;QAElB,IAAI,CAAC,eAAe,CAAC,QAAQ,CAAC,KAAK,CAAC,CAAC;KACxC;;;;;IAED,KAAK;QAED,IAAI,CAAC,eAAe,CAAC,KAAK,EAAE,CAAC;KAChC;;;;;IAED,YAAY;QAER,IAAI,CAAC,eAAe,CAAC,YAAY,EAAE,CAAC;KACvC;;;;;;;IAED,QAAQ,CAAC,SAAiB,EAAC,KAAU;QAEjC,IAAI,CAAC,eAAe,CAAC,QAAQ,CAAC,SAAS,EAAC,KAAK,CAAC,CAAC;KAClD;;;;;;IAED,QAAQ,CAAC,OAAgB;QAErB,IAAI,CAAC,eAAe,CAAC,QAAQ,CAAC,OAAO,CAAC,CAAC;KAC1C;;;;;IAED,QAAQ;QAEJ,OAAO,IAAI,CAAC,eAAe,CAAC,QAAQ,EAAE,CAAC;KAC1C;;;;;;IAED,QAAQ,CAAC,KAAa;QAElB,IAAI,CAAC,eAAe,CAAC,QAAQ,CAAC,KAAK,CAAC,CAAC;KACxC;;;;;;;IAED,cAAc,CAAC,YAAoB,EAAC,KAAU;QAE1C,IAAI,CAAC,eAAe,CAAC,cAAc,CAAC,YAAY,EAAC,KAAK,CAAC,CAAC;KAC3D;;;;;;IAEO,kBAAkB;;YAElB,IAAI,GAAG,IAAI,MAAM,EAAE;;YACnB,YAAY,GAAO,IAAI,CAAC,cAAc,CAAC,IAAI,CAAC,IAAI,CAAC;QACrD,IAAI,CAAC,QAAQ,CAAC,IAAI,CAAC,SAAS,EAAC,UAAU,CAAC,aAAa,EAAC,YAAY,CAAC,CAAC;KACvE;;;;;;IAEO,cAAc,CAAC,KAAS;QAE5B,IAAI,CAAC,KAAK,CAAC,IAAI,CAAC,CAAC,IAAI,CAAC,KAAK,CAAC,MAAM,CAAC,CAAC;KACvC;;;YAjHJ,SAAS,SAAC;gBACT,QAAQ,EAAE,qBAAqB;gBAC/B,QAAQ,EAAE,EAAE;gBACZ,aAAa,EAAE,iBAAiB,CAAC,IAAI;aACtC;;;;YA3DgE,UAAU;;;sBA+DtE,KAAK;2BAEL,MAAM;;;;IAFP,6CAAqC;;IAErC,kDAA8D;;;;;IAE9D,+CAA+B;;;;;IAC/B,qDAA6B;;;;;IAEjB,gDAA6B;;;;;;;;;;;;;;;;;;;;;;;;;ACtE7C,MAgBa,uBAAuB;;;YAZnC,QAAQ,SAAC;gBACR,OAAO,EAAE,EACR;gBACD,YAAY,EAAE;oBACZ,0BAA0B;iBAC3B;gBACD,OAAO,EAAC;oBACN,0BAA0B;iBAC3B;gBACD,SAAS,EAAE,EACV;aACF;;;;;;;;;;;;;;;"}
+import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,
+    ViewEncapsulation, AfterViewInit } from '@angular/core';
+import { Router} from '@angular/router';
+
+declare var NSUtil: any;
+declare var NSNavigation: any;
+
+////////// Interfaces /////////////////////////////////////////////////////////
+
+export interface INSNavigationClickFunction {
+    (event:any,item:INSNavigationMenu,li:any):void;
+}
+
+export interface INSNavigationMenu {
+    menuName: string;
+    href: string;
+    iconBeforeHtml: string;
+    iconAfterHtml: string;
+    onClick: INSNavigationClickFunction;
+    childMenus?: INSNavigationMenu[];
+    [propName: string]: any;
+}
 
 
+@Component({
+  selector: 'ns-navigation',
+  template: '',
+  encapsulation: ViewEncapsulation.None
+})
 
+export class NSNavigationComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit 
+{  
+    @Input() set setting(value:any)
+    {
+      this.__setting = value;
+      if(!this.__nsNavigation && this.__setting)
+      {
+          if(this.__dataSource)
+          {
+            this.__manageDataSource();
+            this.__setting["dataSource"] = this.dataSource;
+          }
+          this.__nsNavigation = new NSNavigation(this.__element,this.__setting);
+      }
+    }
+    get setting(): any
+    {
+      return this.__setting;
+    }
+    @Input() set dataSource(arrSource:INSNavigationMenu[])
+    {
+        this.__dataSource = arrSource;
+        if(this.__nsNavigation)
+        {
+        this.__manageDataSource();
+            this.__nsNavigation.dataSource(arrSource);
+        }
+    }
+    get dataSource(): INSNavigationMenu[] 
+    {
+        return this.__dataSource;
+      }
+    
+  
+    @Output() navigationOpenStart:EventEmitter<any> = new EventEmitter();
+    @Output() navigationOpenEnd:EventEmitter<any> = new EventEmitter();
+    @Output() navigationCloseStart:EventEmitter<any> = new EventEmitter();
+    @Output() navigationCloseEnd:EventEmitter<any> = new EventEmitter();
+    @Output() navigationMenuSelected:EventEmitter<any> = new EventEmitter();
+    @Output() navigationMenuDeselected:EventEmitter<any> = new EventEmitter();
+
+    private __element: HTMLElement;
+    private __nsNavigation: any;
+    private __dataSource:INSNavigationMenu[];
+    private __setting:any;
+
+    constructor(private elementRef:ElementRef,private router: Router) 
+    {
+        this.__element = elementRef.nativeElement;
+    };
+  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}): void 
+    {
+        /*if(!this.__nsNavigation && this.__setting)
+        {
+            this.__manageDataSource();
+            if(this.__dataSource)
+            {
+                this.setting["dataSource"] = this.dataSource;
+            }
+            this.__nsNavigation = new NSNavigation(this.__element,this.setting);
+        }*/
+    };
+  
+    ngOnInit() : void
+    {
+        let util = new NSUtil();
+        let eventHandler:any = this.__navEventHandler.bind(this);
+        util.addEvent(this.__element,NSNavigation.NAVIGATION_OPEN_START,eventHandler);
+        util.addEvent(this.__element,NSNavigation.NAVIGATION_OPEN_END,eventHandler);
+        util.addEvent(this.__element,NSNavigation.NAVIGATION_CLOSE_START,eventHandler);
+        util.addEvent(this.__element,NSNavigation.NAVIGATION_CLOSE_END,eventHandler);
+        util.addEvent(this.__element,NSNavigation.NAVIGATION_MENU_SELECTED,eventHandler);
+        util.addEvent(this.__element,NSNavigation.NAVIGATION_MENU_DESELECTED,eventHandler);
+    };
+  
+    ngAfterViewInit(): void 
+    {
+    };
+  
+    ngOnDestroy(): void 
+    {
+    };
+  
+    getElement(): HTMLElement
+    {
+        return this.__element;
+    };
+  
+    isNavOpen(): Boolean
+    {
+        return (this.__nsNavigation ? this.__nsNavigation.isNavOpen() : false);
+    };
+    
+    toggleNavigation(): void 
+    {
+      if(this.__nsNavigation)
+      {
+        this.__nsNavigation.toggleNavigation();
+      }
+    };
+    
+    openNavigation(): void 
+    {
+        if(this.__nsNavigation)
+        {
+          this.__nsNavigation.openNavigation();
+        }
+    };
+    
+    closeNavigation(): void 
+    {
+        if(this.__nsNavigation)
+        {
+          this.__nsNavigation.closeNavigation();
+        }
+    };
+    
+    selectMenu(itemOrElement:any): void 
+    {
+        if(this.__nsNavigation)
+        {
+          this.__nsNavigation.selectMenu(itemOrElement);
+        }
+    };
+    
+    setDataSource(source:INSNavigationMenu[]): void 
+    {
+        if(this.__nsNavigation)
+        {
+            this.__manageDataSource();
+          this.__nsNavigation.dataSource(source);
+        }
+    };
+  
+    setStyle(styleProp:String,value:any)
+    {
+        if(this.__nsNavigation)
+        {
+          this.__nsNavigation.setStyle(styleProp,value);
+        }
+        
+    };
+  
+    private __manageDataSource():void
+    {
+        if(this.dataSource && this.dataSource.length > 0)
+        {
+            for(let source of this.dataSource)
+            {
+                this.__manageDataSourceItem(source);
+            }
+        }
+    };
+  
+    private __manageDataSourceItem(item:INSNavigationMenu):void
+    {
+        if(item)
+        {
+            if(item.childMenus && item.childMenus.length > 0)
+            {
+                for(let childMenu of item.childMenus)
+                {
+                    this.__manageDataSourceItem(childMenu);
+                }
+            }
+            else
+            {
+                item.click = this.__menuClickHandler.bind(this);
+            }
+        }
+    };
+  
+    private __menuClickHandler(event:any,item:INSNavigationMenu,li:any):void
+    {
+        if(item)
+        {
+            if(item.href)
+            {
+                
+                this.router.navigate([item.href]);
+            }
+            if(item.onClick)
+            {
+                item.onClick(event,item,li);
+            }
+        }
+    };
+  
+    private __navEventHandler(event:any)
+    {
+        this[event.type].emit(event.detail);
+    }
+}
+
+
+import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,
+    ViewEncapsulation, AfterViewInit } from '@angular/core';
+
+declare var NSUtil: any;
+declare var NSPanel: any;
+
+////////// Interfaces /////////////////////////////////////////////////////////
+
+export interface INSPanelMinimizeAddRemoveElementFunction {
+    (component: any,parentComponent: any,isMinimized: boolean):void;
+}
+
+export interface INSPanelCustomClass {
+    container?: string;
+    titleBar?: string;
+    iconContainer?: string;
+    icon?: string;
+    body?: string;
+    [propName: string]: any;
+}
+
+export interface INSPanelToolBarDetailsObject {
+    iconHTML?: string;
+    title?: string;
+}
+
+export interface INSPanelToolBarDetails {
+    minimize?: INSPanelToolBarDetailsObject;
+    maximize?: INSPanelToolBarDetailsObject;
+    expand?: INSPanelToolBarDetailsObject;
+    collapse?: INSPanelToolBarDetailsObject;
+    fullScreen?: INSPanelToolBarDetailsObject;
+    restore?: INSPanelToolBarDetailsObject;
+    close?: INSPanelToolBarDetailsObject;
+}
+
+export interface INSPanelDivSetting {
+    top?: string;
+    left?: string;
+    width?: string;
+    height?: string;
+}
+
+export interface INSPanelSetting {
+    context?: any;
+    parent?: any;
+    title?: string;
+    titleHtml?: string;
+    content?: any;
+    template?: string;
+    templateUrl?: string;
+    minWidth?: number;
+    minHeight?: number;
+    enablePopUp?: boolean;
+    enableModal?: boolean;
+    enableCollapse?: boolean;
+    enableMinimization?: boolean;
+    enableFullScreen?: boolean;
+    enableDrag?: boolean;
+    enableResize?: boolean;
+    enableTitleDblClick?: boolean;
+    enableMoveOnClick?: boolean;
+    enableModalAnimation?: boolean;
+    enableModalCloseOnOutsideClick?: boolean;
+    enableModalCloseOnEscape?: boolean;
+    enableCloseIconVisibility?: boolean;
+    minimizedDirection?: string;
+    theme?: string;
+    minimizeAddRemoveElementCallback?: INSPanelMinimizeAddRemoveElementFunction,
+    customClass?: INSPanelCustomClass;
+    toolBarDetails?: INSPanelToolBarDetails;
+    panelSetting?: INSPanelDivSetting;
+}
+
+@Component({
+  selector: 'ns-panel',
+  template: '<ng-content></ng-content>',
+  encapsulation: ViewEncapsulation.None
+})
+
+export class NSPanelComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit 
+{  
+    @Input() setting: INSPanelSetting;
+    
+    @Output() dragStaring:EventEmitter<any> = new EventEmitter();
+    @Output() dragging:EventEmitter<any> = new EventEmitter();
+    @Output() dragEnd:EventEmitter<any> = new EventEmitter();
+    @Output() resizeStaring:EventEmitter<any> = new EventEmitter();
+    @Output() resizing:EventEmitter<any> = new EventEmitter();
+    @Output() resizeEnd:EventEmitter<any> = new EventEmitter();
+    @Output() collapseStarting:EventEmitter<any> = new EventEmitter();
+    @Output() collapseEnd:EventEmitter<any> = new EventEmitter();
+    @Output() expansionStarting:EventEmitter<any> = new EventEmitter();
+    @Output() expansionEnd:EventEmitter<any> = new EventEmitter();
+    @Output() minimizeStarting:EventEmitter<any> = new EventEmitter();
+    @Output() minimizeEnd:EventEmitter<any> = new EventEmitter();
+    @Output() maximizeStarting:EventEmitter<any> = new EventEmitter();
+    @Output() maximizeEnd:EventEmitter<any> = new EventEmitter();
+    @Output() fullScreenStarting:EventEmitter<any> = new EventEmitter();
+    @Output() fullScreenEnd:EventEmitter<any> = new EventEmitter();
+    @Output() restoreStarting:EventEmitter<any> = new EventEmitter();
+    @Output() restoreEnd:EventEmitter<any> = new EventEmitter();
+    @Output() closed:EventEmitter<any> = new EventEmitter();
+
+    private __element: HTMLElement;
+    private __objNSPanel: any;
+    
+
+    constructor(private elementRef:ElementRef) 
+    {
+        
+    };
+  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}): void 
+    {
+        console.log(this.elementRef.nativeElement);
+    };
+  
+    ngOnInit() : void
+    {
+        console.log(this.elementRef.nativeElement);
+    };
+    
+    //elements children are created in ngAfterViewInit and not in ngOnInit
+    ngAfterViewInit(): void 
+    {
+        console.log(this.elementRef.nativeElement);
+        this.__element = this.elementRef.nativeElement;
+        this.__objNSPanel = new NSPanel(this.__element,this.setting); 
+        this.__creationHandler();
+        this.__addEventHandlers();
+    };
+  
+    ngOnDestroy(): void 
+    {
+    };
+    
+    open(): void
+    {
+        /*if(!this.__objNSPanel)
+        {
+            this.__element = this.elementRef.nativeElement;
+            this.__objNSPanel = new NSPanel(this.__element,this.setting); 
+            this.__creationHandler();
+            this.__addEventHandlers();
+        }*/
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.open();
+        }
+    };
+    
+    close(): void
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.close();
+        }
+    };
+    
+    getBaseElement(): any
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.getBaseElement();
+        }
+        return null;
+    };
+  
+    getElement(): HTMLElement
+    {
+        return this.__element;
+    };
+  
+    minimize(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.minimize();
+        }
+    };
+    
+    maximize(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.maximize();
+        }
+    };
+    
+    collapse(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.collapse();
+        }
+    };
+    
+    expand(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.expand();
+        }
+    };
+    
+    fullScreen(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.fullScreen();
+        }
+    };
+    
+    restore(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.restore();
+        }
+    };
+    
+    disableResize(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableResize();
+        }
+    };
+    
+    disableDrag(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableDrag();
+        }
+    };
+    
+    disableCollapse(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableCollapse();
+        }
+    };
+    
+    disableMinMax(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableCollapse();
+        }
+    };
+    
+    disableFullScreen(): void
+    {
+        if(this.__objNSPanel)
+        {
+            this.__objNSPanel.disableCollapse();
+        }
+    };
+    
+    isCollapsed(): boolean
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.isCollapsed();
+        }
+        return false;
+    };
+    
+    isMinimized(): boolean
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.isMinimized();
+        }
+        return false;
+    };
+    
+    isFullScreen(): boolean
+    {
+        if(this.__objNSPanel)
+        {
+            return this.__objNSPanel.isFullScreen();
+        }
+        return false;
+    };
+    
+    private __creationHandler(): void
+    {
+        if(!this.__element)
+        {
+            this.__element = this.__objNSPanel.getBaseElement();
+        }
+    };
+    
+    private __addEventHandlers(): void
+    {
+        if(this.__element)
+        {
+            let util = new NSUtil();
+            let eventHandler:any = this.__navEventHandler.bind(this);
+            util.addEvent(this.__element,NSPanel.DRAG_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.DRAGGING,eventHandler);
+            util.addEvent(this.__element,NSPanel.DRAG_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESIZE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESIZING,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESIZE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.COLLAPSE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.COLLAPSE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.EXPANSION_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.EXPANSION_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.MINIMIZE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.MINIMIZE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.MAXIMIZE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.MAXIMIZE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.FULLSCREEN_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.FULLSCREEN_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESTORE_STARTING,eventHandler);
+            util.addEvent(this.__element,NSPanel.RESTORE_END,eventHandler);
+            util.addEvent(this.__element,NSPanel.CLOSED,eventHandler);
+        }
+    };
+  
+    private __navEventHandler(event:any)
+    {
+        this[event.type].emit(event.detail);
+    }
+}
+
+import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,
+    ViewEncapsulation, AfterViewInit } from '@angular/core';
+
+declare var NSUtil: any;
+declare var NSTextBox: any;
+
+////////// Interfaces /////////////////////////////////////////////////////////
+
+export interface INSTextBoxServerSearchFunction {
+    (searchString:string,filterSetting:any,enableHighlighting:boolean,searchRecordLimit:number):void;
+}
+
+export interface INSTextBoxRendererFunction {
+    (item:any,labelField:string):string;
+}
+
+export interface INSTextBoxSetting {
+    type?: string;
+    context?: any;
+    dropDownType?: string;
+    maxChars?: number;
+    minChars?: number;
+    minSearchStartChars?: number;
+    caseSensitive?: boolean;
+    required?: boolean;
+    placeholder?: string;
+    displayAsPassword?: boolean;
+    enableServerSide?: boolean;
+    enableServerWithSmartSearch?: boolean;
+    serverSearchCallback?: INSTextBoxServerSearchFunction;
+    textBoxRendererCallback?: INSTextBoxRendererFunction;
+    delay?: number;
+    maxListHeight?: number,
+    listWidth?: number;
+    labelField?: string;
+    arrGridSearchField?:string[];
+    isGridOrFilter?: boolean;
+    stopHoveringField?: string;
+    labelFunction?: any;
+    template?: string;
+    setDataCallBack?: any;
+    itemRenderer?: any;
+    enableMultipleSelection?: boolean;
+    enableKeyboardNavigation?: boolean;
+    noRecordsFoundMessage?: string;
+    multiSelectionSeparator?: string;
+    pattern?: string;
+    restrict?: string;
+    dataSource?:any[];
+    styleClass?: string;
+    dropDownSetting?: any;
+    filterSetting?: any;
+    enableHighlighting?: boolean;
+    searchRecordLimit?: number;
+}
+
+@Component({
+  selector: 'ns-textbox',
+  template: '',
+  encapsulation: ViewEncapsulation.None
+})
+
+export class NSTextBoxComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit 
+{  
+    @Input() setting: INSTextBoxSetting;
+    @Input() set dataSource(arrSource:any[])
+    {
+    	this.__dataSource = arrSource;
+    	if(this.__nsTextBox)
+    	{
+    		this.__nsTextBox.dataSource(arrSource);
+    	}
+    }
+    get dataSource(): any[] 
+    {
+    	return this.__dataSource;
+	}
+  
+    @Output() itemSelected:EventEmitter<any> = new EventEmitter();
+    @Output() itemUnselected:EventEmitter<any> = new EventEmitter();
+    
+   	public static readonly TYPE_AUTOTEXT = "text";
+   	public static readonly TYPE_AUTOCOMPLETE = "autocomplete";
+   	public static readonly TYPE_EMAIL = "email";
+   	public static readonly TYPE_NUMBER = "number";
+   	public static readonly TYPE_PASSWORD = "password";
+   	public static readonly TYPE_URL = "url";
+   	public static readonly DROPDOWN_TYPE_LIST = "list";
+   	public static readonly DROPDOWN_TYPE_GRID = "grid";
+   	public static readonly FILTER_TYPE_EXACT = "exact";
+	public static readonly FILTER_TYPE_STARTS_WITH = "startsWith";
+	public static readonly FILTER_TYPE_ENDS_WITH = "endsWith";
+	public static readonly FILTER_TYPE_CONTAINS = "contains";
+
+    private __element: HTMLElement;
+    private __nsTextBox: any;
+    private __dataSource:any[];
+
+    constructor(private elementRef:ElementRef) 
+    {
+        this.__element = elementRef.nativeElement;
+    };
+  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}): void 
+    {
+        if(!this.__nsTextBox)
+        {
+        	if(this.__dataSource)
+        	{
+        		this.setting["dataSource"] = this.__dataSource;
+        	}
+            this.__nsTextBox = new NSTextBox(this.__element,this.setting);
+        }
+    };
+  
+    ngOnInit() : void
+    {
+        let util = new NSUtil();
+        let eventHandler:any = this.__eventHandler.bind(this);
+        util.addEvent(this.__element,NSTextBox.ITEM_SELECTED,eventHandler);
+        util.addEvent(this.__element,NSTextBox.ITEM_UNSELECTED,eventHandler);
+    };
+  
+    ngAfterViewInit(): void 
+    {
+    };
+  
+    ngOnDestroy(): void 
+    {
+    };
+    
+    create(): void
+    {
+        this.__nsTextBox = new NSTextBox(this.__element,this.setting);
+    };
+  
+    getElement(): HTMLElement
+    {
+        return this.__element;
+    };
+    
+    getTextBox(): any
+    {
+        return this.__nsTextBox.getTextBox();
+    };
+    
+    setText(text : string): void
+    {
+        this.__nsTextBox.setText(text);
+    };
+    
+    getText(): string
+    {
+        return this.__nsTextBox.getText();
+    };
+    
+    getSelectedItem(): any
+    {
+        return this.__nsTextBox.getSelectedItem();
+    };
+    
+    getSelectedItems(): any[]
+    {
+        return this.__nsTextBox.getSelectedItems();
+    };
+  
+    private __eventHandler(event:any)
+    {
+        this[event.type].emit(event.detail);
+    }
+}
+
+import { Component, Input, Output, OnChanges, OnInit, OnDestroy, ElementRef, SimpleChange, EventEmitter,
+    ViewEncapsulation, AfterViewInit } from '@angular/core';
+
+import { NSMessageBoxService } from '../nsMessageBox/service/nsMessageBox.service';
+import { NSMessageBoxComponent, INSMessageBoxConfirmSetting, INSMessageBoxAlertSetting, INSMessageBoxConfirmButtonSetting, 
+         INSMessageBoxCallbackFunction } from '../nsMessageBox/component/nsMessageBox.component';
+
+import { INSPanelCustomClass, INSPanelDivSetting } from '../nsPanel/nsPanel.component'
+
+declare var NSUtil: any;
+declare var NSMessageBox: any;
+declare var NSPanel: any;
+
+@Component({
+  selector: 'ns-popup',
+  template: '',
+  encapsulation: ViewEncapsulation.None
+})
+
+export class PopUpComponent implements OnChanges, OnInit, OnDestroy, AfterViewInit 
+{  
+    static objNSMessageBoxService: NSMessageBoxService;
+    private __element: HTMLElement;
+
+    constructor(private elementRef:ElementRef) 
+    {
+        this.__element = elementRef.nativeElement;
+    };
+  
+    ngOnChanges(changes: {[propName: string]: SimpleChange}): void 
+    {
+        
+    };
+  
+    ngOnInit() : void
+    {
+        
+    };
+  
+    ngAfterViewInit(): void 
+    {
+    };
+  
+    ngOnDestroy(): void 
+    {
+    };
+    
+    getElement(): HTMLElement
+    {
+        return this.__element;
+    };
+    
+    showAlert(alertMessage:string,fontAwsomeIcon:string = "fa-bell",iconColor:string = "text-nomura-red",alertHeader:string = "Alert"): NSMessageBoxComponent
+    {
+        let titleHtml: string = '<i class="fa ' + fontAwsomeIcon + ' ' + iconColor + '"></i>&nbsp;&nbsp;<h3 class="box-title">' + alertHeader + '<span></span></h3>';
+        let bodyHtml: string = '<span style="text-align: center;">' + alertMessage + '</span>';
+        let customClass:INSPanelCustomClass = {container:"box box-nomura-red",titleBar:"box-header with-border",titleBarContent:null,iconConatiner:null,icon:null,body:null,
+                                                messageBody:"box-body",messageFooter:"box-footer"};
+        let setting : INSMessageBoxAlertSetting = { titleHtml: titleHtml,bodyContent: bodyHtml,customClass: customClass,
+                                                    enableModalCloseOnOutsideClick:true,enableModalCloseOnEscape:true,
+                                                    buttonClass:"btn btn-nomura-green",enableCloseIconVisibility:false};
+        //let nsMessageBoxService: NSMessageBoxService = new NSMessageBoxService();
+        //nsMessageBoxService.alert(setting);
+        //return nsMessageBoxService;
+        //return this.__nsMessageBoxService.alert(setting);
+        return null;
+    } 
+    
+    static setMessageBoxService(value: NSMessageBoxService): void
+    {
+        PopUpComponent.objNSMessageBoxService = value;
+    }
+  
+    static showAlertPopup(alertMessage:string,fontAwsomeIcon:string = "fa-bell",iconColor:string = "text-nomura-red",alertHeader:string = "Alert"): NSMessageBoxComponent
+    {
+       return PopUpComponent.__showAlert(alertMessage,fontAwsomeIcon,iconColor,alertHeader);
+    }
+    
+    static showSuccessAlertPopup(alertMessage:string,alertHeader:string = "Success"): NSMessageBoxComponent
+    {
+        return PopUpComponent.__showAlert(alertMessage,"fa-check","text-nomura-green",alertHeader);
+    }
+  
+    static showFailureAlertPopup(alertMessage:string,alertHeader:string = "Failure"): NSMessageBoxComponent
+    {
+        return PopUpComponent.__showAlert(alertMessage,"fa-warning","text-nomura-red",alertHeader);
+    }
+  
+    static showOkCancelPopup(alertMessage:string,alertHeader:string = "Alert",confirmCallback: any = null, cancelCallback: any = null): NSMessageBoxComponent
+    {
+        return PopUpComponent.__showConfirm(alertMessage,alertHeader,confirmCallback,cancelCallback);
+    }
+  
+    static showNotificationsListPopup(alertMessage:string[],callback: any = null): NSMessageBoxComponent
+    {
+        return PopUpComponent.__showNotificationsList(alertMessage,callback);
+    }
+    
+    static __showAlert(alertMessage:string,fontAwsomeIcon:string = "fa-bell",iconColor:string = "text-nomura-red",alertHeader:string = "Alert"): NSMessageBoxComponent
+    {
+        let titleHtml: string = '<i class="fa ' + fontAwsomeIcon + ' ' + iconColor + '"></i>&nbsp;&nbsp;<h3 class="box-title">' + alertHeader + '<span></span></h3>';
+        let bodyHtml: string = '<span style="text-align: center;">' + alertMessage + '</span>';
+        let customClass:INSPanelCustomClass = {container:"box box-nomura-red",titleBar:"box-header with-border",titleBarContent:null,iconConatiner:null,icon:null,body:null,
+                                                messageBody:"box-body",messageFooter:"box-footer"};
+        let setting : INSMessageBoxAlertSetting = { titleHtml: titleHtml,bodyContent: bodyHtml,customClass: customClass,
+                                                    enableModalCloseOnOutsideClick:true,enableModalCloseOnEscape:true,
+                                                    buttonClass:"btn btn-nomura-green",enableCloseIconVisibility:false};
+        //let nsMessageBoxService: NSMessageBoxService = new NSMessageBoxService();
+        //nsMessageBoxService.alert(setting);
+        //return nsMessageBoxService;
+        return PopUpComponent.objNSMessageBoxService.alert(setting);
+    } 
+    
+    static __showConfirm(alertMessage:string,alertHeader:string = null,confirmCallback: any = null, cancelCallback: any = null): NSMessageBoxComponent
+    {
+        alertHeader = alertHeader ? alertHeader : "Alert";
+        let titleHtml: string = '<i class="fa fa fa-bell text-nomura-red"></i>&nbsp;&nbsp;<h3 class="box-title">' + alertHeader + '<span></span></h3>';
+        let bodyHtml: string = '<span>' + alertMessage + '</span>';
+        let customClass:INSPanelCustomClass = {container:"box box-nomura-red",titleBar:"box-header with-border",titleBarContent:null,iconConatiner:null,icon:null,body:null,
+                                                messageBody:"box-body",messageFooter:"box-footer"};
+        let confirm: INSMessageBoxConfirmButtonSetting = {label:"Yes",cssClass:"btn btn-nomura-green",callback:confirmCallback};
+        let cancel: INSMessageBoxConfirmButtonSetting = {label:"Cancel",cssClass:"btn btn-nomura-red",callback:cancelCallback};
+        let panelSetting: INSPanelDivSetting = {width:"45%"};
+        let setting : INSMessageBoxConfirmSetting = { titleHtml: titleHtml,bodyContent: bodyHtml,customClass: customClass,
+                                                    enableModalCloseOnOutsideClick:true,enableModalCloseOnEscape:true,
+                                                    enableCloseIconVisibility:false,
+                                                    confirm:confirm,cancel:cancel,panelSetting:panelSetting};
+        
+        /*let nsMessageBoxService: NSMessageBoxService = new NSMessageBoxService();
+        nsMessageBoxService.confirm(setting);
+        return nsMessageBoxService;*/
+        return PopUpComponent.objNSMessageBoxService.confirm(setting);
+    }
+    
+    static __showNotificationsList(alertMessage:string[],callback: any = null): NSMessageBoxComponent
+    {
+        if(alertMessage && alertMessage.length > 0)
+        {
+            let titleHtml: string = '<i class="fa fa-tv text-nomura-green"></i>&nbsp;&nbsp;<h3 class="box-title">' + "System Notifications" + '<span></span></h3>';
+            let bodyHtml: string = '<ul class="notifications-list notifications-list-in-box">';
+            for (let message of alertMessage) 
+            {
+                bodyHtml +='<li class="notification">';
+                bodyHtml +='<div class="notification-icon">';
+                bodyHtml +='<i class="fa fa-circle-o text-nomura-orange"></i>';
+                bodyHtml +='</div>';
+                bodyHtml +='<div class="notification-message">';
+                bodyHtml +='<span>' + message + '</span>';
+                bodyHtml +='</div>';
+                bodyHtml +='</li>';
+            }
+            bodyHtml +='</ul>';
+            let customClass:INSPanelCustomClass = {container:"box box-nomura-red",titleBar:"box-header with-border",titleBarContent:null,iconConatiner:null,icon:null,body:null,
+                                                    messageBody:"box-body",messageFooter:"box-footer"};
+            let setting : INSMessageBoxAlertSetting = { titleHtml: titleHtml,bodyContent: bodyHtml,customClass: customClass,
+                                                        enableModalCloseOnOutsideClick:true,enableModalCloseOnEscape:true,
+                                                        buttonClass:"btn btn-nomura-green",callback:callback,enableCloseIconVisibility:false};
+            /*let nsMessageBoxService: NSMessageBoxService = new NSMessageBoxService();
+            nsMessageBoxService.alert(setting);
+            return nsMessageBoxService;*/
+            return PopUpComponent.objNSMessageBoxService.alert(setting);
+        }
+        return null;
+    }
+    
+}
+
+import {
+    Injectable,
+    Injector,
+    ComponentFactoryResolver,
+    EmbeddedViewRef,
+    ApplicationRef,
+    ViewContainerRef,
+    ComponentRef
+} from '@angular/core';
+
+@Injectable()
+export class DynamicComponentService 
+{
+
+    constructor(private componentFactoryResolver: ComponentFactoryResolver,
+                private applicationRef: ApplicationRef,
+                //private viewContainerRef: ViewContainerRef,
+                private injector: Injector) 
+    { 
+    
+    }
+
+    createComponentRef(componentClass: any): ComponentRef<any> 
+    {
+        const factory = this.componentFactoryResolver.resolveComponentFactory(componentClass);
+        const componentRef = factory.create(this.injector);
+        this.applicationRef.attachView(componentRef.hostView);
+        return componentRef;
+    }
+    
+    getInstanceFromComponentRef(componentRef: ComponentRef<any>): any
+    {
+        return componentRef.instance;
+    }
+
+    getDomElementFromComponentRef(componentRef: ComponentRef<any>): HTMLElement 
+    {
+        return (componentRef.hostView as EmbeddedViewRef<any>).rootNodes[0] as HTMLElement;
+    }
+
+    destroyRef(componentRef: ComponentRef<any>, delay: number) 
+    {
+        setTimeout(() => {
+            this.applicationRef.detachView(componentRef.hostView);
+            componentRef.destroy();
+        }, delay);
+    }
+    
+}
+
+
+import { NgModule, ModuleWithProviders } from '@angular/core';
+import { NSTextBoxComponent } from '../nsTextBox/nsTextBox.component';
+import { NSCalendarComponent } from '../nsCalendar/nsCalendar.component';
+import { NSDatePickerComponent } from '../nsDatePicker/nsDatePicker.component';
+import { NSPanelComponent } from '../nsPanel/nsPanel.component';
+import { NSMessageBoxComponent } from '../nsMessageBox/component/nsMessageBox.component';
+import { NSMessageBoxService } from '../nsMessageBox/service/nsMessageBox.service';
+import { DynamicComponentService } from '../services/dynamicComponent/dynamicComponent.service';
+
+@NgModule({
+  imports: [
+  ],
+  declarations: [
+    NSTextBoxComponent,
+    NSCalendarComponent,
+    NSDatePickerComponent,
+    NSPanelComponent,
+    NSMessageBoxComponent
+  ],
+  exports:[
+    NSTextBoxComponent,
+    NSCalendarComponent,
+    NSDatePickerComponent,
+    NSPanelComponent,
+    NSMessageBoxComponent
+  ],
+  providers: [
+    DynamicComponentService,
+    NSMessageBoxService
+  ]
+})
+export class SharedModule {
+  /*static forRoot(): ModuleWithProviders {
+    return {
+      ngModule: SharedModule,
+      providers: [NSTextBoxComponent]
+    };
+  }*/
+  
+}
