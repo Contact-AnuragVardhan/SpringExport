@@ -4,3 +4,6 @@ Your Mac username is: user269374
 Your Mac password is: ntv56274xjk
 Your Mac IP is: 205.251.13.190
 Please review account instructions below carefully
+
+
+ /Users/user269374/.vscode/extensions/blackboxapp.blackboxagent-2.7.4
