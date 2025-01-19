@@ -9,7 +9,6 @@ import { WebSocketServer } from 'ws';
 import * as vscode from "vscode";
 import * as net from 'net';
 import yauzl from "yauzl";
-import extract from 'extract-zip';
 
 type PostMessageToWebview = (message: ExtensionMessage) => Promise<void>;
 const ELECTRON_VERSION = '33.3.1';
@@ -397,110 +396,127 @@ export class ElectronHelper extends EventEmitter {
     });
   }
 
-  private async unzipElectronInstaller(zipFilePath: string, outputDir: string): Promise<void> {
-    try {
-      await extract(zipFilePath, { dir: outputDir ,
-        /*onEntry: (entry: Entry, zipfile) => {
-          if (entry.fileName.includes('default_app.asar')) {
-            console.log(`Skipping extraction of ${entry.fileName}`);
-            entry.fileName = null as unknown as string;
-          }
-        },*/
-      });
-      console.log('Unzipped successfully using extract-zip');
-    } catch (err) {
-      console.error('Suppressing unzip error ', err);
-    }
-    /*return new Promise<void>((resolve, reject) => {
-      yauzl.open(zipFilePath, { lazyEntries: true }, (err, zipfile) => {
-        if (err) {
-          return reject(err);
-        }
-        if (!zipfile) {
-          return reject(new Error("Failed to open zipfile (no zipfile object)"));
-        }
-
-        // to Ensure the output directory exists
-        fs.mkdirSync(outputDir, { recursive: true });
-
-        zipfile.readEntry();
-
-        // Fired for each folder and file
-        zipfile.on("entry", (entry: yauzl.Entry) => {
-          const entryPath = entry.fileName;
-          const fullPath = path.join(outputDir, entryPath);
-
-          const isDirectory = entry.fileName.endsWith("/") || (entry.externalFileAttributes & 0x10) === 0x10 || entry.fileName.endsWith(".app");
-          console.log(`entryPath ${entryPath} is a directory ${isDirectory}`)
-
-          if (isDirectory) {
-            fs.mkdirSync(fullPath, { recursive: true });
-            zipfile.readEntry();
-          } else {
-            console.log(entryPath);
-            let targetPath = fullPath;
-            let needsRenameAfterWrite = false;
-            const normalized = entryPath.replace(/\\/g, "/");
-            if (normalized && normalized.includes("default_app.asar")) {
-              console.log("[Extension] handling default_app.asar");
-              targetPath = fullPath + ".temp";
-              needsRenameAfterWrite = true;
-            }
-            fs.mkdirSync(path.dirname(targetPath), { recursive: true });
-
-            zipfile.openReadStream(entry, (err, readStream) => {
-              if (err) {
-                //return reject(err);
-                console.error(err);
-                return zipfile.readEntry(); // skip
-              }
-              if (!readStream) {
-                console.error("No readStream for zip entry:", entry.fileName);
-                return zipfile.readEntry(); // skip
-              }
-
-              const writeStream = fs.createWriteStream(targetPath);
-
-              //readStream.on("error", reject);
-              //writeStream.on("error", reject);
-              readStream.on("error", (err: Error) => {
-                console.error('An error occurred in readStream:', err);
-              });
-
-              writeStream.on("error", (err: Error) => {
-                console.error('An error occurred in writeStream:', err);
-              });
-
-              writeStream.on("close", () => {
-                if (needsRenameAfterWrite) {
-                  try {
-                    fs.renameSync(targetPath, fullPath);
-                    console.log("[Extension] Renamed .temp => .asar:", fullPath);
-                  } catch (renameErr) {
-                    console.error("Rename failed:", renameErr);
-                  }
-                }
-                zipfile.readEntry();
-              });
-              readStream.pipe(writeStream);
-            });
-          }
-        });
-
-        zipfile.on("end", () => {
-          console.log("Read all entries from zip file");
-        });
-
-        zipfile.on("close", () => {
-          console.log("zip file extracted successfully");
+  private unzipElectronInstaller(zipFilePath: string, outputDir: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      if (process.platform === 'darwin') {
+        this.unzipOnMac(zipFilePath, outputDir).then(() => {
           resolve();
-        });
+        })
+        .catch((err) => {
+          reject(err);
+        })
+      }
+      else {
+        yauzl.open(zipFilePath, { lazyEntries: true }, (err, zipfile) => {
+          if (err) {
+            return reject(err);
+          }
+          if (!zipfile) {
+            return reject(new Error("Failed to open zipfile (no zipfile object)"));
+          }
 
-        zipfile.on("error", (error) => {
-          reject(error);
+          // to Ensure the output directory exists
+          fs.mkdirSync(outputDir, { recursive: true });
+
+          zipfile.readEntry();
+
+          // Fired for each folder and file
+          zipfile.on("entry", (entry: yauzl.Entry) => {
+            const entryPath = entry.fileName;
+            const fullPath = path.join(outputDir, entryPath);
+
+            const isDirectory = entry.fileName.endsWith("/") || (entry.externalFileAttributes & 0x10) === 0x10 || entry.fileName.endsWith(".app");
+            console.log(`entryPath ${entryPath} is a directory ${isDirectory}`)
+
+            if (isDirectory) {
+              fs.mkdirSync(fullPath, { recursive: true });
+              zipfile.readEntry();
+            } else {
+              console.log(entryPath);
+              let targetPath = fullPath;
+              let needsRenameAfterWrite = false;
+              const normalized = entryPath.replace(/\\/g, "/");
+              if (normalized && normalized.includes("default_app.asar")) {
+                console.log("[Extension] handling default_app.asar");
+                targetPath = fullPath + ".temp";
+                needsRenameAfterWrite = true;
+              }
+              fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+
+              zipfile.openReadStream(entry, (err, readStream) => {
+                if (err) {
+                  //return reject(err);
+                  console.error(err);
+                  return zipfile.readEntry(); // skip
+                }
+                if (!readStream) {
+                  console.error("No readStream for zip entry:", entry.fileName);
+                  return zipfile.readEntry(); // skip
+                }
+
+                const writeStream = fs.createWriteStream(targetPath);
+
+                //readStream.on("error", reject);
+                //writeStream.on("error", reject);
+                readStream.on("error", (err: Error) => {
+                  console.error('An error occurred in readStream:', err);
+                });
+
+                writeStream.on("error", (err: Error) => {
+                  console.error('An error occurred in writeStream:', err);
+                });
+
+                writeStream.on("close", () => {
+                  if (needsRenameAfterWrite) {
+                    try {
+                      fs.renameSync(targetPath, fullPath);
+                      console.log("[Extension] Renamed .temp => .asar:", fullPath);
+                    } catch (renameErr) {
+                      console.error("Rename failed:", renameErr);
+                    }
+                  }
+                  zipfile.readEntry();
+                });
+                readStream.pipe(writeStream);
+              });
+            }
+          });
+
+          zipfile.on("end", () => {
+            console.log("Read all entries from zip file");
+          });
+
+          zipfile.on("close", () => {
+            console.log("zip file extracted successfully");
+            resolve();
+          });
+
+          zipfile.on("error", (error) => {
+            reject(error);
+          });
         });
+      }
+    });
+  }
+
+  private async unzipOnMac(zipFilePath: string, outputDir: string): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      // Ensure output dir exists
+      fs.mkdirSync(outputDir, { recursive: true });
+
+      // The -o flag overwrites files without prompting.
+      const cmd = `unzip -o "${zipFilePath}" -d "${outputDir}"`;
+      console.log(`[Extension] Running: ${cmd}`);
+
+      exec(cmd, (error, stdout, stderr) => {
+        if (error) {
+          console.error('[Extension] unzip error:', error, stderr);
+          return reject(error);
+        }
+        console.log('[Extension] Unzipped successfully using native macOS unzip');
+        resolve();
       });
-    });*/
+    });
   }
 
 }
