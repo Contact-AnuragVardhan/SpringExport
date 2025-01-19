@@ -8,3 +8,5 @@ Please review account instructions below carefully
 
  /Users/user269374/.vscode/extensions/blackboxapp.blackboxagent-2.7.4
 https://github.com/electron/electron/releases/download/v33.3.1/electron-v33.3.1-darwin-arm64.zip
+
+https://ai-code-chat-1.onrender.com/chat/room/RTest100-XPRX8XXd4c4voxY1737223129600
