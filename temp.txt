@@ -1,138 +1,197 @@
 import os
+import json
 import traceback
 
-from langchain.agents import initialize_agent, Tool, AgentType
+from dotenv import load_dotenv
 from sqlalchemy import create_engine
 from langchain.sql_database import SQLDatabase
+from langchain.agents import Tool
+
+# Chinou imports (adjust to your package structure if needed)
 from chinou.client.domain import LLMDescriptor
 from chinou.client.proxy import ProxyLLM
 from chinou.util.access import SSOException, get_sso_token
-from dotenv import load_dotenv
 
+###############################################################################
+# Step 1: Load environment variables
+###############################################################################
 load_dotenv()
 
 swarm_resource = "/chinou/data/llm-digital-office-general"
 sso_token = None
-
 try:
     sso_token = get_sso_token()
 except SSOException:
-    print(f"user access denied: please ensure user is added to SWARM group:{swarm_resource}")
+    print(f"user access denied: please ensure user is added to SWARM group: {swarm_resource}")
 
-llm_endpoint = "http://chinou-api-stg.us-east-1.aws.nomura.com/invoke"
-model = "anthropic-3-haiku[Bedrock]"
+# Model/endpoint settings (for demonstration)
+llm_endpoint = os.getenv("LLM_ENDPOINT", "http://chinou-api-stg.us-east-1.aws.nomura.com/invoke")
+model = os.getenv("MODEL_NAME", "anthropic-3-haiku[Bedrock]")
 
-temperature = 0.4
-top_k = 40
-top_p = 0.9
-max_new_tokens = 2048
+temperature = float(os.getenv("MODEL_TEMPERATURE", 0.4))
+top_k = int(os.getenv("MODEL_TOP_K", 40))
+top_p = float(os.getenv("MODEL_TOP_P", 0.9))
+max_new_tokens = int(os.getenv("MODEL_MAX_NEW_TOKENS", 2048))
 
-SERVER_NAME = os.getenv('SERVER_NAME', 'SQL00814')
-DRIVER = os.getenv('SQL_DRIVER', 'ODBC+Driver+17+for+SQL+Server')
-DATABASES_STR = os.getenv('DATABASES', 'nss2,complianceportal')
+# This environment variable holds the names of each DB (e.g. "nss2, complianceportal")
+DATABASES_STR = os.getenv("DATABASES", "nss2,complianceportal")
 DATABASES = [db.strip() for db in DATABASES_STR.split(",") if db.strip()]
 
-SQL_USER = os.getenv('SQL_USER', 'sysnss2stg_dbo')
-SQL_PASSWORD = os.getenv('SQL_PASSWORD', 'Welcome99')
-SQL_PORT = os.getenv('SQL_PORT', '2500')
+###############################################################################
+# Step 2: Load or create JSON-based DB details
+###############################################################################
+def load_or_create_db_details(db_name: str) -> dict:
+    """
+    Checks if 'db/<db_name>_details.json' exists. If it does, read DB details from that file.
+    Otherwise, read from environment variables, write them to JSON, then return the details.
+    
+    The JSON file structure might look like:
+    {
+        "driver": "ODBC+Driver+17+for+SQL+Server",
+        "server_name": "SQL00814",
+        "user": "...",
+        "password": "...",
+        "port": "1433"
+    }
+    """
+    # Ensure the 'db' folder exists
+    os.makedirs("db", exist_ok=True)
 
+    details_path = os.path.join("db", f"{db_name}_details.json")
 
-if not SERVER_NAME:
-    raise ValueError("Configuration Error: SERVER_NAME not found in environment variables.")
-if not DATABASES:
-    raise ValueError("Configuration Error: DATABASES not found or empty in environment variables.")
-if not SQL_USER:
-    raise ValueError("Configuration Error: SQL_USER not found in environment variables.")
+    if os.path.exists(details_path):
+        # Load from JSON file
+        with open(details_path, "r", encoding="utf-8") as f:
+            details = json.load(f)
+        print(f"Loaded DB details for '{db_name}' from {details_path}.")
+    else:
+        # If JSON does not exist, read from env vars and create JSON
+        db_name_upper = db_name.upper()
 
+        # Attempt to read from environment variables
+        driver = os.getenv("SQL_DRIVER", "ODBC+Driver+17+for+SQL+Server")
+        server_name = os.getenv("SERVER_NAME", "SQL00814")
+        
+        user = os.getenv(f"SQL_USER_{db_name_upper}") or os.getenv("SQL_USER")
+        password = os.getenv(f"SQL_PASSWORD_{db_name_upper}") or os.getenv("SQL_PASSWORD")
+        port = os.getenv(f"SQL_PORT_{db_name_upper}") or os.getenv("SQL_PORT", "1433")
+
+        if not user:
+            raise ValueError(f"Error: No username found for {db_name}. Check env vars or create JSON manually.")
+        if not password:
+            raise ValueError(f"Error: No password found for {db_name}. Check env vars or create JSON manually.")
+
+        details = {
+            "driver": driver,
+            "server_name": server_name,
+            "user": user,
+            "password": password,
+            "port": port
+        }
+
+        # Write details to JSON
+        with open(details_path, "w", encoding="utf-8") as f:
+            json.dump(details, f, indent=2)
+        print(f"Created new DB details JSON for '{db_name}': {details_path}")
+
+    return details
+
+###############################################################################
+# Step 3: Build the SQL Tools for each database
+###############################################################################
 def make_sql_tools():
+    """
+    Creates a list of Tools (one per database) for executing queries, 
+    with credentials loaded from db/<db_name>_details.json if available,
+    or from environment variables if not.
+    """
     tools_list = []
     print("Attempting to create SQL tools...")
 
+    if not DATABASES:
+        raise ValueError("No databases specified in DATABASES environment variable.")
+
     for db_name in DATABASES:
+        db_details = load_or_create_db_details(db_name)
+
+        # Build the connection string from the JSON details
+        driver_encoded = db_details["driver"].replace(" ", "+")
         connection_str = (
-            f"mssql+pyodbc://{SQL_USER}:{SQL_PASSWORD}"
-            f"@{SERVER_NAME}:{SQL_PORT}/{db_name}?"
-            f"driver={DRIVER.replace(' ', '+')}"
+            f"mssql+pyodbc://{db_details['user']}:{db_details['password']}"
+            f"@{db_details['server_name']}:{db_details['port']}/{db_name}?"
+            f"driver={driver_encoded}"
             f"&TrustServerCertificate=yes"
             f"&encrypt=yes"
             f"&timeout=30"
         )
+
+        # Create the engine and wrap in SQLDatabase
         try:
             engine = create_engine(connection_str)
             sql_db = SQLDatabase(engine)
             print(f"SQLDatabase object created for {db_name}")
-
         except Exception as e:
-            print(f"\n--- ERROR: Failed to create database engine or SQLDatabase object for '{db_name}' ---")
-            print(
-                f"Connection String Attempted (password hidden): mssql+pyodbc://{SQL_USER}:***@{SERVER_NAME}/{db_name}?driver={DRIVER.replace(' ', '+')}")
-            print(f"Error: {e}")
-            print("------------------------------------------------------------------")
+            print(f"\n--- ERROR: Failed to create engine/SQLDatabase for '{db_name}' ---")
+            safe_conn_str = connection_str.replace(db_details['password'], '***')
+            print(f"Connection string used (pw hidden): {safe_conn_str}")
+            print(f"Error: {e}\n")
             continue
 
-        def make_query_runner(database_obj: SQLDatabase, current_db_name: str):
-            def run_query(query: str) -> str:
-                print(f"\n--- Running Query on '{current_db_name}': ---\n{query}\n---------------------------------")
-                try:
-                    #with database_obj.engine.connect() as conn:
-                        #result = conn.execute(query)
-                        #rows = result.fetchall()
-                    #return str(rows)
-                    result = database_obj.run(query)
-                    print(f"\n--- Result from {current_db_name}: ---\n{result}\n-------------------------------")
-                    return str(result)
-                except Exception as e:
-                    error_message = f"SQL error on {current_db_name}: {e}"
-                    print(f"\n--- Error executing query on '{current_db_name}': ---\n{error_message}\n-----------------------------")
-                    return error_message
-            return run_query
+        # The function that actually runs a query against this DB
+        def run_query(query: str) -> str:
+            print(f"\n--- Running Query on '{db_name}': ---\n{query}\n---------------------------------")
+            try:
+                result = sql_db.run(query)
+                print(f"\n--- Result from {db_name}: ---\n{result}\n-------------------------------")
+                return str(result)
+            except Exception as ex:
+                error_message = f"SQL error on {db_name}: {ex}"
+                print(f"\n--- Error executing query on '{db_name}': ---\n{error_message}\n-----------------------------")
+                return error_message
 
-        query_runner_func = make_query_runner(sql_db, db_name)
-
-        # Create a LangChain Tool object
+        # Create a LangChain Tool
         tool = Tool(
             name=f"Query_{db_name}",
-            func=query_runner_func,
+            func=run_query,
             description=(
-                f"Use this tool to execute a SINGLE read-only SQL query (preferably SELECT) on the '{db_name}' database. "
-                f"Input MUST be a valid SQL query for SQL Server. "
-                f"Use this tool only when the user's question explicitly requires data from '{db_name}'. "
-                f"Schema details are provided in the main context."
+                f"Execute a single read-only SQL query (e.g. SELECT) on the '{db_name}' database.\n"
+                f"Input must be a valid SQL query for SQL Server.\n"
+                f"Use this tool only if you need data from '{db_name}'."
             ),
         )
         tools_list.append(tool)
         print(f"Successfully created tool: Query_{db_name}")
 
     if not tools_list:
-        raise ValueError("Critical Error: No database tools could be created. Check connection details and database names.")
+        raise ValueError("No database tools could be created. Check your DB configs.")
     print(f"Finished creating tools. {len(tools_list)} tools available.")
     return tools_list
 
-def create_agent():
-    sql_tools = make_sql_tools()
+###############################################################################
+# Step 4: Create the LLM (ProxyLLM) for normal single-shot prompting
+###############################################################################
+def create_llm():
+    """
+    Creates the ProxyLLM object (Chinou) with the desired model and hyperparameters.
+    """
+    print("Initializing Chinou LLM...")
 
-    print("Initializing Chinou...")
-
-    if "llama-2" in model:
+    # Set up parameters for the chosen model
+    if "llama-2" in model.lower():
         model_params = {
             "temperature": temperature,
             "top_p": top_p,
             "max_tokens": max_new_tokens
         }
-    elif "anthropic-3" in model:
+    elif "anthropic-3" in model.lower():
         model_params = {
             "temperature": temperature,
             "top_p": top_p,
             "top_k": top_k,
             "max_new_tokens": max_new_tokens
         }
-    elif "mistral" in model:
-        model_params = {
-            "temperature": temperature,
-            "top_p": top_p,
-            "max_tokens": max_new_tokens
-        }
     else:
+        # Generic fallback
         model_params = {
             "temperature": temperature,
             "top_p": top_p,
@@ -140,113 +199,136 @@ def create_agent():
             "max_tokens": max_new_tokens
         }
 
-    print(f"model:{model} model_params:{model_params}")
+    print(f"Model: {model}")
+    print(f"Model params: {model_params}")
 
     llm_descriptor = LLMDescriptor(model=model, model_params=model_params)
-    api_llm = ProxyLLM(url=llm_endpoint, user=get_sso_token(), model_descriptor=llm_descriptor)
+    try:
+        # If your environment requires SSO token
+        user_token = get_sso_token()
+    except SSOException:
+        user_token = None
+    
+    chinou_llm = ProxyLLM(url=llm_endpoint, user=user_token, model_descriptor=llm_descriptor)
+    print("Chinou LLM initialized.")
+    return chinou_llm
 
-    print("Chinou initialized.")
-
-    print("Agent initialized successfully.")
-    return api_llm
-
-
+###############################################################################
+# Step 5: Obtain schema info from each database for the system prompt
+###############################################################################
 def get_schema_prompt():
+    """
+    Fetches an overview of the schema from each database and returns as a text block.
+    Uses the same DB details from the JSON or environment.
+    """
     schema_lines = []
     print("\nFetching database schemas...")
 
     for db_name in DATABASES:
-        encoded_driver = DRIVER.replace(' ', '+')
+        db_details = load_or_create_db_details(db_name)
+
+        driver_encoded = db_details["driver"].replace(" ", "+")
         connection_str = (
-            f"mssql+pyodbc://{SQL_USER}:{SQL_PASSWORD}"
-            f"@{SERVER_NAME}:{SQL_PORT}/{db_name}?"
-            f"driver={DRIVER.replace(' ', '+')}"
+            f"mssql+pyodbc://{db_details['user']}:{db_details['password']}"
+            f"@{db_details['server_name']}:{db_details['port']}/{db_name}?"
+            f"driver={driver_encoded}"
             f"&TrustServerCertificate=yes"
             f"&encrypt=yes"
             f"&timeout=30"
         )
+
         try:
-            engine = create_engine(connection_str, connect_args={'timeout': 10})
+            engine = create_engine(connection_str)
             db_obj = SQLDatabase(engine)
             raw_schema = db_obj.get_table_info()
             schema_lines.append(f"### Database: {db_name}\nSchema:\n```sql\n{raw_schema}\n```\n")
             print(f"Successfully fetched schema for {db_name}.")
         except Exception as e:
-            print(f"Warning: Could not fetch schema for database {db_name}: {e}")
+            print(f"Warning: Could not fetch schema for '{db_name}': {e}")
             schema_lines.append(f"### Database: {db_name}\n[Schema unavailable: {e}]\n")
 
     schema_text = "\n".join(schema_lines)
     print("Schema fetching complete.")
     return schema_text
 
+###############################################################################
+# Step 6: Main Q&A loop with a normal single-shot prompt
+###############################################################################
 def main():
     try:
-        print("Starting agent setup...")
-        agent = create_agent()
+        # Build your SQL Tools (optional if you need them for tool-based queries)
+        sql_tools = make_sql_tools()
+        
+        # Create the LLM
+        llm = create_llm()
 
-        print("Preparing schema context...")
+        # Fetch the schema from each database
         schema_context = get_schema_prompt()
-        print("\nAgent ready. Enter your questions.")
-        print("=========================================")
 
-        # Simple loop to prompt user for questions
+        print("\nSystem setup complete. You can now ask questions:")
+        print("==================================================")
+
+        # Provide some sample Q&A for context
+        EXAMPLE_DIALOGUE = """
+[System]
+You are a helpful assistant capable of answering user questions with knowledge of SQL databases.
+You can suggest queries or provide summarized results as needed.
+
+[Example #1]
+User: "How many employees are in the HR table?"
+Assistant: "There are 53 employees in the HR_Employees table."
+
+[Example #2]
+User: "What is the top product by sales?"
+Assistant: "The top product by sales is 'Laptop Model X' with $1,200,000 in total sales."
+---
+"""
+
         while True:
-            try:
-                user_question = input("\nAsk a question (or type 'exit' to quit): ")
-                if user_question.lower() in ["exit", "quit"]:
-                    print("Goodbye!")
-                    break
-                if not user_question.strip():
-                    continue
+            user_question = input("\nAsk a question (or type 'exit' to quit): ")
+            if user_question.lower() in ["exit", "quit"]:
+                print("Goodbye!")
+                break
+            if not user_question.strip():
+                continue
 
-                prompt_for_agent = f"""
-You are an AI assistant that answers user questions. You have access to tools for querying SQL databases.
-Follow the ReAct framework (Thought, Action, Action Input, Observation) precisely to arrive at the final answer.
+            # Construct a single-shot prompt with system instructions, schema, etc.
+            full_prompt = f"""
+[System]
+You are an AI assistant that answers user questions clearly and succinctly.
+Here are the database schemas you have access to:
 
-AVAILABLE TOOLS:
---------------
-You have tools named like `Query_DatabaseName` for each available database. Tool descriptions tell you which database they query.
-
-DATABASE SCHEMA CONTEXT:
-------------------------
 {schema_context}
-------------------------
 
-USER QUESTION:
---------------
+Use this context to help answer queries about the data. 
+You can propose sample SQL queries if relevant, but do not expose chain-of-thought.
+
+Here are some examples:
+{EXAMPLE_DIALOGUE}
+
+[User Question]
 {user_question}
---------------
 
-INSTRUCTIONS:
-1.  **Thought:** Briefly reason about the user's question and whether a tool is needed based on the schema context.
-2.  **Action:** If a tool is needed, specify the **exact** tool name (e.g., `Query_YourDb1`). If no tool is needed, the action is `Final Answer`.
-3.  **Action Input:** If using a tool, provide the precise SQL query to execute. If the action is `Final Answer`, provide the answer text.
-4.  **Observation:** (This is filled by the system after executing a tool Action) The result of the tool execution.
-5.  Repeat Thought/Action/Action Input/Observation until you have enough information.
-6.  Your final response MUST be in the `Final Answer:` format.
+[Assistant's Response]:
+"""
 
-Begin the process!
+            print("\n--- LLM Prompt Start ---")
+            print(full_prompt)
+            print("--- LLM Prompt End ---\n")
 
-Thought:"""
+            try:
+                # Single-shot LLM invocation
+                answer = llm.invoke(full_prompt)
+                print(f"Assistant: {answer}\n")
 
-                print("\n--- Invoking Agent ---")
-                answer = agent.invoke(prompt_for_agent) # agent.run drives the ReAct loop
-                print(f"--- Agent Finished ---")
-                print(f"\nAgent's Final Answer: {answer}\n")
             except Exception as e:
-                print(f"\nAn error occurred during agent execution: {e}")
-                print(e)
+                print(f"\nError during LLM query: {e}")
                 traceback.print_exc()
-                print("=========================================")
 
-    except ValueError as ve:
-         print(f"\nConfiguration Error during setup: {ve}")
-         traceback.print_exc()
-    except Exception as e:
-        print(f"\nAn unexpected error occurred during setup: {e}")
-        print(e)
+    except Exception as ex:
+        print(f"Error in main: {ex}")
         traceback.print_exc()
+
 
 if __name__ == "__main__":
     main()
-
