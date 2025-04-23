@@ -1,12 +1,252 @@
+import os
+import traceback
 
-Your server hostname is: NY790.macincloud.com
-Your Mac username is: user269374
-Your Mac password is: ntv56274xjk
-Your Mac IP is: 205.251.13.190
-Please review account instructions below carefully
+from langchain.agents import initialize_agent, Tool, AgentType
+from sqlalchemy import create_engine
+from langchain.sql_database import SQLDatabase
+from chinou.client.domain import LLMDescriptor
+from chinou.client.proxy import ProxyLLM
+from chinou.util.access import SSOException, get_sso_token
+from dotenv import load_dotenv
+
+load_dotenv()
+
+swarm_resource = "/chinou/data/llm-digital-office-general"
+sso_token = None
+
+try:
+    sso_token = get_sso_token()
+except SSOException:
+    print(f"user access denied: please ensure user is added to SWARM group:{swarm_resource}")
+
+llm_endpoint = "http://chinou-api-stg.us-east-1.aws.nomura.com/invoke"
+model = "anthropic-3-haiku[Bedrock]"
+
+temperature = 0.4
+top_k = 40
+top_p = 0.9
+max_new_tokens = 2048
+
+SERVER_NAME = os.getenv('SERVER_NAME', 'SQL00814')
+DRIVER = os.getenv('SQL_DRIVER', 'ODBC+Driver+17+for+SQL+Server')
+DATABASES_STR = os.getenv('DATABASES', 'nss2,complianceportal')
+DATABASES = [db.strip() for db in DATABASES_STR.split(",") if db.strip()]
+
+SQL_USER = os.getenv('SQL_USER', 'sysnss2stg_dbo')
+SQL_PASSWORD = os.getenv('SQL_PASSWORD', 'Welcome99')
+SQL_PORT = os.getenv('SQL_PORT', '2500')
 
 
- /Users/user269374/.vscode/extensions/blackboxapp.blackboxagent-2.7.4
-https://github.com/electron/electron/releases/download/v33.3.1/electron-v33.3.1-darwin-arm64.zip
+if not SERVER_NAME:
+    raise ValueError("Configuration Error: SERVER_NAME not found in environment variables.")
+if not DATABASES:
+    raise ValueError("Configuration Error: DATABASES not found or empty in environment variables.")
+if not SQL_USER:
+    raise ValueError("Configuration Error: SQL_USER not found in environment variables.")
 
-https://ai-code-chat-1.onrender.com/chat/room/RTest100-XPRX8XXd4c4voxY1737223129600
+def make_sql_tools():
+    tools_list = []
+    print("Attempting to create SQL tools...")
+
+    for db_name in DATABASES:
+        connection_str = (
+            f"mssql+pyodbc://{SQL_USER}:{SQL_PASSWORD}"
+            f"@{SERVER_NAME}:{SQL_PORT}/{db_name}?"
+            f"driver={DRIVER.replace(' ', '+')}"
+            f"&TrustServerCertificate=yes"
+            f"&encrypt=yes"
+            f"&timeout=30"
+        )
+        try:
+            engine = create_engine(connection_str)
+            sql_db = SQLDatabase(engine)
+            print(f"SQLDatabase object created for {db_name}")
+
+        except Exception as e:
+            print(f"\n--- ERROR: Failed to create database engine or SQLDatabase object for '{db_name}' ---")
+            print(
+                f"Connection String Attempted (password hidden): mssql+pyodbc://{SQL_USER}:***@{SERVER_NAME}/{db_name}?driver={DRIVER.replace(' ', '+')}")
+            print(f"Error: {e}")
+            print("------------------------------------------------------------------")
+            continue
+
+        def make_query_runner(database_obj: SQLDatabase, current_db_name: str):
+            def run_query(query: str) -> str:
+                print(f"\n--- Running Query on '{current_db_name}': ---\n{query}\n---------------------------------")
+                try:
+                    #with database_obj.engine.connect() as conn:
+                        #result = conn.execute(query)
+                        #rows = result.fetchall()
+                    #return str(rows)
+                    result = database_obj.run(query)
+                    print(f"\n--- Result from {current_db_name}: ---\n{result}\n-------------------------------")
+                    return str(result)
+                except Exception as e:
+                    error_message = f"SQL error on {current_db_name}: {e}"
+                    print(f"\n--- Error executing query on '{current_db_name}': ---\n{error_message}\n-----------------------------")
+                    return error_message
+            return run_query
+
+        query_runner_func = make_query_runner(sql_db, db_name)
+
+        # Create a LangChain Tool object
+        tool = Tool(
+            name=f"Query_{db_name}",
+            func=query_runner_func,
+            description=(
+                f"Use this tool to execute a SINGLE read-only SQL query (preferably SELECT) on the '{db_name}' database. "
+                f"Input MUST be a valid SQL query for SQL Server. "
+                f"Use this tool only when the user's question explicitly requires data from '{db_name}'. "
+                f"Schema details are provided in the main context."
+            ),
+        )
+        tools_list.append(tool)
+        print(f"Successfully created tool: Query_{db_name}")
+
+    if not tools_list:
+        raise ValueError("Critical Error: No database tools could be created. Check connection details and database names.")
+    print(f"Finished creating tools. {len(tools_list)} tools available.")
+    return tools_list
+
+def create_agent():
+    sql_tools = make_sql_tools()
+
+    print("Initializing Chinou...")
+
+    if "llama-2" in model:
+        model_params = {
+            "temperature": temperature,
+            "top_p": top_p,
+            "max_tokens": max_new_tokens
+        }
+    elif "anthropic-3" in model:
+        model_params = {
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "max_new_tokens": max_new_tokens
+        }
+    elif "mistral" in model:
+        model_params = {
+            "temperature": temperature,
+            "top_p": top_p,
+            "max_tokens": max_new_tokens
+        }
+    else:
+        model_params = {
+            "temperature": temperature,
+            "top_p": top_p,
+            "top_k": top_k,
+            "max_tokens": max_new_tokens
+        }
+
+    print(f"model:{model} model_params:{model_params}")
+
+    llm_descriptor = LLMDescriptor(model=model, model_params=model_params)
+    api_llm = ProxyLLM(url=llm_endpoint, user=get_sso_token(), model_descriptor=llm_descriptor)
+
+    print("Chinou initialized.")
+
+    print("Agent initialized successfully.")
+    return api_llm
+
+
+def get_schema_prompt():
+    schema_lines = []
+    print("\nFetching database schemas...")
+
+    for db_name in DATABASES:
+        encoded_driver = DRIVER.replace(' ', '+')
+        connection_str = (
+            f"mssql+pyodbc://{SQL_USER}:{SQL_PASSWORD}"
+            f"@{SERVER_NAME}:{SQL_PORT}/{db_name}?"
+            f"driver={DRIVER.replace(' ', '+')}"
+            f"&TrustServerCertificate=yes"
+            f"&encrypt=yes"
+            f"&timeout=30"
+        )
+        try:
+            engine = create_engine(connection_str, connect_args={'timeout': 10})
+            db_obj = SQLDatabase(engine)
+            raw_schema = db_obj.get_table_info()
+            schema_lines.append(f"### Database: {db_name}\nSchema:\n```sql\n{raw_schema}\n```\n")
+            print(f"Successfully fetched schema for {db_name}.")
+        except Exception as e:
+            print(f"Warning: Could not fetch schema for database {db_name}: {e}")
+            schema_lines.append(f"### Database: {db_name}\n[Schema unavailable: {e}]\n")
+
+    schema_text = "\n".join(schema_lines)
+    print("Schema fetching complete.")
+    return schema_text
+
+def main():
+    try:
+        print("Starting agent setup...")
+        agent = create_agent()
+
+        print("Preparing schema context...")
+        schema_context = get_schema_prompt()
+        print("\nAgent ready. Enter your questions.")
+        print("=========================================")
+
+        # Simple loop to prompt user for questions
+        while True:
+            try:
+                user_question = input("\nAsk a question (or type 'exit' to quit): ")
+                if user_question.lower() in ["exit", "quit"]:
+                    print("Goodbye!")
+                    break
+                if not user_question.strip():
+                    continue
+
+                prompt_for_agent = f"""
+You are an AI assistant that answers user questions. You have access to tools for querying SQL databases.
+Follow the ReAct framework (Thought, Action, Action Input, Observation) precisely to arrive at the final answer.
+
+AVAILABLE TOOLS:
+--------------
+You have tools named like `Query_DatabaseName` for each available database. Tool descriptions tell you which database they query.
+
+DATABASE SCHEMA CONTEXT:
+------------------------
+{schema_context}
+------------------------
+
+USER QUESTION:
+--------------
+{user_question}
+--------------
+
+INSTRUCTIONS:
+1.  **Thought:** Briefly reason about the user's question and whether a tool is needed based on the schema context.
+2.  **Action:** If a tool is needed, specify the **exact** tool name (e.g., `Query_YourDb1`). If no tool is needed, the action is `Final Answer`.
+3.  **Action Input:** If using a tool, provide the precise SQL query to execute. If the action is `Final Answer`, provide the answer text.
+4.  **Observation:** (This is filled by the system after executing a tool Action) The result of the tool execution.
+5.  Repeat Thought/Action/Action Input/Observation until you have enough information.
+6.  Your final response MUST be in the `Final Answer:` format.
+
+Begin the process!
+
+Thought:"""
+
+                print("\n--- Invoking Agent ---")
+                answer = agent.invoke(prompt_for_agent) # agent.run drives the ReAct loop
+                print(f"--- Agent Finished ---")
+                print(f"\nAgent's Final Answer: {answer}\n")
+            except Exception as e:
+                print(f"\nAn error occurred during agent execution: {e}")
+                print(e)
+                traceback.print_exc()
+                print("=========================================")
+
+    except ValueError as ve:
+         print(f"\nConfiguration Error during setup: {ve}")
+         traceback.print_exc()
+    except Exception as e:
+        print(f"\nAn unexpected error occurred during setup: {e}")
+        print(e)
+        traceback.print_exc()
+
+if __name__ == "__main__":
+    main()
+
